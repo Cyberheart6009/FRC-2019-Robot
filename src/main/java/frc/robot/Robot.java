@@ -8,8 +8,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+// Our New Imports
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Spark;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,6 +31,17 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+
+  // Joystick Definitions. Each one is a controller.
+  Joystick driver;
+  Joystick operator;
+
+  // Setting up the motors and the groups that they belong to
+  SpeedController leftFront, leftBack, rightFront, rightBack;
+  SpeedControllerGroup rightChassis, leftChassis;
+  DifferentialDrive chassis;
+
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -33,6 +51,20 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    // Definitions for every individual motor
+    leftFront = new Spark(0);
+    leftBack = new Spark(1);
+    rightFront = new Spark(2);
+    rightBack = new Spark(3);
+    // Definitions for each side of the chassis
+    leftChassis = new SpeedControllerGroup(leftFront, leftBack);
+    rightChassis = new SpeedControllerGroup(rightFront, rightBack);
+    // Invert the right chassis so we don't grind any gears
+    rightChassis.setInverted(true);
+    // Combining both sides into one great robot
+    chassis = new DifferentialDrive(leftChassis, rightChassis);
+    
   }
 
   /**
@@ -80,12 +112,21 @@ public class Robot extends TimedRobot {
         break;
     }
   }
+  
+  /**
+   * This function is called as teleop is Initiated
+   */
+  @Override
+  public void teleopInit() {
+    super.teleopInit();
+  }
 
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
+    chassis.arcadeDrive(driver.getX(), driver.getY());
   }
 
   /**
