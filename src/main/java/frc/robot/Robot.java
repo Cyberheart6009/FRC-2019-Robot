@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   // Variable that stores half way value of the screen
-  int middlePixel;
+  int middlePixel = 320;
 
   // instantiating compressor
   Compressor c = new Compressor(0);
@@ -53,6 +53,9 @@ public class Robot extends TimedRobot {
 
   Joystick driver;
 
+  NetworkTableInstance inst;
+  NetworkTable table;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -64,17 +67,14 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
 
     // Get default instance of automatically created Network Tables
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    inst = NetworkTableInstance.getDefault();
 
     // Get the table within the instance that contains the data
-    NetworkTable table = inst.getTable("datatable");
+    table = inst.getTable("visionTable");
 
     // Get X and Y entries
-    xEntry = table.getEntry("X");
-    yEntry = table.getEntry("Y");
-
-    xEntry.toString();
-    yEntry.toString();
+    xEntry = table.getEntry("xEntry");
+    yEntry = table.getEntry("yEntry");
 
     // when enabled, the PCM will turn on the compressor when the pressure switch is
     // closed
@@ -86,7 +86,6 @@ public class Robot extends TimedRobot {
     // d.set(DoubleSolenoid.Value.kReverse);
 
     driver = new Joystick(0);
-
   }
 
   /**
@@ -101,10 +100,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // print compressor status to the console
-    System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
-    SmartDashboard.putString("X", xEntry);
-
+    //System.out.println("Im In");
   }
 
   /**
@@ -166,15 +164,21 @@ public class Robot extends TimedRobot {
       c.setClosedLoopControl(false);
     }
 
+    if (yButton == true) {
+      xEntry.setDouble(xEntry.getDouble(1)+1);
+    }
+    
     // drive according to vision input
-    if (xEntry > middlePixel) {
+    if (xEntry.getDouble(0.0) > middlePixel) {
+      System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
       // turn left
-    } else if (xEntry < middlePixel) {
+    } else if (xEntry.getDouble(0.0) < middlePixel) {
+      System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
       // turn right
-    } else if (xEntry == middlePixel) {
+    } else if (xEntry.getDouble(0.0) == middlePixel) {
+      System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
       // drive straight
     }
-
   }
 
   /**
