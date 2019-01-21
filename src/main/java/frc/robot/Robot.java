@@ -10,8 +10,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -35,19 +33,6 @@ public class Robot extends TimedRobot {
 
   // Variable that stores half way value of the screen
   int middlePixel = 320;
-
-  // instantiating compressor
-  Compressor c = new Compressor(0);
-
-  // compressor status
-  boolean enabled = c.enabled();
-  boolean pressureSwitch = c.getPressureSwitchValue();
-  double current = c.getCompressorCurrent();
-
-  // instantiating solenoid
-  // params are the two port numbers for the forward channel and reverse channel
-  // respectively
-  DoubleSolenoid d = new DoubleSolenoid(0, 1);
 
   Boolean aButton, bButton, xButton, yButton;
 
@@ -75,15 +60,6 @@ public class Robot extends TimedRobot {
     // Get X and Y entries
     xEntry = table.getEntry("xEntry");
     yEntry = table.getEntry("yEntry");
-
-    // when enabled, the PCM will turn on the compressor when the pressure switch is
-    // closed
-    c.setClosedLoopControl(true);// or false
-
-    // set the state of the valve
-    d.set(DoubleSolenoid.Value.kOff);
-    // d.set(DoubleSolenoid.Value.kForward);
-    // d.set(DoubleSolenoid.Value.kReverse);
 
     driver = new Joystick(0);
   }
@@ -151,18 +127,6 @@ public class Robot extends TimedRobot {
     bButton = driver.getRawButton(2);
     xButton = driver.getRawButton(3);
     yButton = driver.getRawButton(4);
-
-    if (aButton == true) {
-      c.setClosedLoopControl(false);
-      d.set(DoubleSolenoid.Value.kForward);
-    } else if (aButton == false) {
-      d.set(DoubleSolenoid.Value.kReverse);
-      c.setClosedLoopControl(true);
-    } else if (bButton == true) {
-      c.setClosedLoopControl(true);
-    } else if (xButton == true) {
-      c.setClosedLoopControl(false);
-    }
 
     if (yButton == true) {
       xEntry.setDouble(xEntry.getDouble(1)+1);
