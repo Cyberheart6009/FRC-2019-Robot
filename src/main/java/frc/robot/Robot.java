@@ -10,9 +10,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+
+import frc.robot.PistonTimer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -44,6 +47,16 @@ public class Robot extends TimedRobot {
   DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
   DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
 
+  // Pneumatic Piston Movement Variables
+  // True = activates the if statement in robotPeriodic
+  //boolean movePistonBall = false;
+  //boolean movePistonHatch = false;
+
+  boolean startTimerPiston = true;
+  double startTimePiston;
+
+  PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
+  PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
   Boolean aButton, bButton, xButton, yButton;
 
@@ -85,6 +98,13 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     // print compressor status to the console
     System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+
+    if (ballPiston.movePiston) {
+      ballPiston.movePistonFunction();
+    } 
+    if (hatchPiston.movePiston) {
+      hatchPiston.movePistonFunction();
+    }
     
   }
 
@@ -135,17 +155,23 @@ public class Robot extends TimedRobot {
     xButton = driver.getRawButton(3);
     yButton = driver.getRawButton(4);
 
-    if (aButton == true) {
+    if (aButton) {
+      ballPiston.movePiston = true;
+    }
+    if (yButton) {
+      hatchPiston.movePiston = true;
+    }
+    /*if (aButton == true) {
       c.setClosedLoopControl(false);
       ballSolenoid.set(DoubleSolenoid.Value.kForward);
-    } else /*if (bButton == true)*/{
+    } else if (bButton == true){
       ballSolenoid.set(DoubleSolenoid.Value.kReverse);
       c.setClosedLoopControl(true);
     }
     if (yButton == true) {
       c.setClosedLoopControl(false);
       hatchSolenoid.set(DoubleSolenoid.Value.kForward);
-    } else /*if (xButton == true) */{
+    } else if (xButton == true) {
       hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
       c.setClosedLoopControl(true);
     }/*
@@ -161,11 +187,5 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-  }
-}
-
-private class pneumaticTimer() {
-  public pneumaticTimer() {
-
   }
 }
