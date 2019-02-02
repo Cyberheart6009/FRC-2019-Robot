@@ -132,14 +132,16 @@ public class Robot extends TimedRobot {
       xEntry.setDouble(xEntry.getDouble(1)+1);
     }
     
+    int threshold = 15;
+
     // drive according to vision input
-    if (xEntry.getDouble(0.0) > middlePixel) {
+    if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
       // turn left
-    } else if (xEntry.getDouble(0.0) < middlePixel) {
+    } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
       System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
       // turn right
-    } else if (xEntry.getDouble(0.0) == middlePixel) {
+    } else {
       System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
       // drive straight
     }
