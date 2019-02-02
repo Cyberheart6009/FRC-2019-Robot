@@ -41,7 +41,9 @@ public class Robot extends TimedRobot {
   // instantiating solenoid
   // params are the two port numbers for the forward channel and reverse channel
   // respectively
-  DoubleSolenoid d = new DoubleSolenoid(0, 1);
+  DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
+  DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
+
 
   Boolean aButton, bButton, xButton, yButton;
 
@@ -62,7 +64,8 @@ public class Robot extends TimedRobot {
     c.setClosedLoopControl(true);// or false
 
     // set the state of the valve
-    d.set(DoubleSolenoid.Value.kOff);
+    ballSolenoid.set(DoubleSolenoid.Value.kOff);
+    hatchSolenoid.set(DoubleSolenoid.Value.kOff);
     // d.set(DoubleSolenoid.Value.kForward);
     // d.set(DoubleSolenoid.Value.kReverse);
 
@@ -134,15 +137,23 @@ public class Robot extends TimedRobot {
 
     if (aButton == true) {
       c.setClosedLoopControl(false);
-      d.set(DoubleSolenoid.Value.kForward);
-    } else if (yButton == true) {
-      d.set(DoubleSolenoid.Value.kReverse);
+      ballSolenoid.set(DoubleSolenoid.Value.kForward);
+    } else /*if (bButton == true)*/{
+      ballSolenoid.set(DoubleSolenoid.Value.kReverse);
       c.setClosedLoopControl(true);
-    } else if (bButton == true) {
+    }
+    if (yButton == true) {
+      c.setClosedLoopControl(false);
+      hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+    } else /*if (xButton == true) */{
+      hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+      c.setClosedLoopControl(true);
+    }/*
+    if (bButton == true) {
       c.setClosedLoopControl(true);
     } else if (xButton == true) {
       c.setClosedLoopControl(false);
-    }
+    }*/
   }
 
   /**
@@ -150,5 +161,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+  }
+}
+
+private class pneumaticTimer() {
+  public pneumaticTimer() {
+
   }
 }
