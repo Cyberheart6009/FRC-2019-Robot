@@ -82,6 +82,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     // print compressor status to the console
     System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    
   }
 
   /**
@@ -134,7 +135,7 @@ public class Robot extends TimedRobot {
     if (aButton == true) {
       c.setClosedLoopControl(false);
       d.set(DoubleSolenoid.Value.kForward);
-    } else if (aButton == false) {
+    } else if (yButton == true) {
       d.set(DoubleSolenoid.Value.kReverse);
       c.setClosedLoopControl(true);
     } else if (bButton == true) {
