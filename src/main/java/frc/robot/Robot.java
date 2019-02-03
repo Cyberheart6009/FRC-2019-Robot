@@ -8,12 +8,18 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+// Custom Class
+import frc.robot.AutoRunner;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,18 +34,45 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+
+  // SpeedController Object creations - Define all names of motors here
+	SpeedController leftFront, leftBack, rightFront, rightBack, gripper;
+	// Speed controller group used for new differential drive class
+	SpeedControllerGroup leftChassis, rightChassis;
+	// DifferentialDrive replaces the RobotDrive Class from previous years
+	DifferentialDrive chassis;
+
+
+  // Creates Joystick buttons
+  Boolean aButton, bButton, xButton, yButton;
+  // Creates the driver's joystick
+  Joystick driver;
+
+
+  // Creates the network tables object
+  NetworkTableInstance inst;
+  // A specific table in network tables
+  NetworkTable table;
+  // A specific entry for the table
   NetworkTableEntry xEntry;
   NetworkTableEntry yEntry;
-
   // Variable that stores half way value of the screen
   int middlePixel = 320;
 
-  Boolean aButton, bButton, xButton, yButton;
-
-  Joystick driver;
-
-  NetworkTableInstance inst;
-  NetworkTable table;
+  Object[][] autoTemplate = {
+    // Movement type, Distance, Speed
+    {AutoMovement.STRAIGHT, 200, 1},
+    // Movement type, Rotation, Speed
+    {AutoMovement.TURN, 90, 0.5}
+  };
+  // Dictates the current auto that is selected
+  Object[][] selectedAuto;
+  // Creates the autoRunner object
+  AutoRunner autoRunner;
+  // Indicates what step of auto the robot is on
+  int moveStep;
+  // Indicates when auto should stop
+  boolean autoStop;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -51,17 +84,40 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
+
+    // Defines all the ports of each of the motors
+		leftFront = new Spark(0);
+		leftBack = new Spark(1);
+		rightFront = new Spark(2);
+		rightBack = new Spark(3);
+		gripper = new Spark(4);
+		// Defines the left and right SpeedControllerGroups for our DifferentialDrive class
+		leftChassis = new SpeedControllerGroup(leftFront, leftBack);
+		rightChassis = new SpeedControllerGroup(rightFront, rightBack);
+		// Inverts the right side of the drive train to account for the motors being physically flipped
+		rightChassis.setInverted(true);
+		// Defines our DifferentalDrive object with both sides of our drivetrain
+    chassis = new DifferentialDrive(leftChassis, rightChassis);
+    
+        
+    // Sets the joystick port
+    driver = new Joystick(0);
+    // Controls
+    aButton = driver.getRawButton(1);
+    bButton = driver.getRawButton(2);
+    xButton = driver.getRawButton(3);
+    yButton = driver.getRawButton(4);
+
+
     // Get default instance of automatically created Network Tables
     inst = NetworkTableInstance.getDefault();
-
     // Get the table within the instance that contains the data
     table = inst.getTable("visionTable");
-
     // Get X and Y entries
     xEntry = table.getEntry("xEntry");
     yEntry = table.getEntry("yEntry");
 
-    driver = new Joystick(0);
+    autoRunner = new AutoRunner(chassis);
   }
 
   /**
@@ -98,6 +154,19 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+    // The step that auto is on
+    moveStep = 0;
+
+    // Which auto are we using?
+    selectedAuto = autoTemplate;
+    // Adds info for the first auto step
+    autoRunner.moveType = (AutoMovement) selectedAuto[moveStep][0];
+    autoRunner.special = (double) selectedAuto[moveStep][1];
+    autoRunner.special = (double) selectedAuto[moveStep][2];
+
+    // Has the auto finished?
+    autoStop = false;
   }
 
   /**
@@ -105,14 +174,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-    case kCustomAuto:
-      // Put custom auto code here
-      break;
-    case kDefaultAuto:
-    default:
-      // Put default auto code here
-      break;
+    if (!autoStop){
+      if (autoRunner.move()){
+        moveStep++;
+        if (moveStep < selectedAuto.length) {
+          autoRunner.moveType = (AutoMovement) selectedAuto[moveStep][0];
+          autoRunner.special = (double) selectedAuto[moveStep][1];
+          autoRunner.special = (double) selectedAuto[moveStep][2];
+        } else {autoStop = true;}
+      }
     }
   }
 
@@ -121,12 +191,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-
-    // Pneumatic controlls
-    aButton = driver.getRawButton(1);
-    bButton = driver.getRawButton(2);
-    xButton = driver.getRawButton(3);
-    yButton = driver.getRawButton(4);
 
     if (yButton == true) {
       xEntry.setDouble(xEntry.getDouble(1)+1);
