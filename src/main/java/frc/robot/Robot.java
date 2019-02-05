@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -19,7 +20,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 // Custom Class
-import frc.robot.AutoRunner;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -40,8 +40,12 @@ public class Robot extends TimedRobot {
 	// Speed controller group used for new differential drive class
 	SpeedControllerGroup leftChassis, rightChassis;
 	// DifferentialDrive replaces the RobotDrive Class from previous years
-	DifferentialDrive chassis;
-
+  DifferentialDrive chassis;
+  
+  // Both encoder sides
+  Encoder leftEncoder, rightEncoder;
+  // Number of counts per inch
+  final static double ENCODER_COUNTS_PER_INCH = 13.49;
 
   // Creates Joystick buttons
   Boolean aButton, bButton, xButton, yButton;
@@ -59,6 +63,11 @@ public class Robot extends TimedRobot {
   // Variable that stores half way value of the screen
   int middlePixel = 320;
 
+  enum AutoMovement {
+    STRAIGHT,
+    TURN,
+    VISION
+  }
   Object[][] autoTemplate = {
     // Movement type, Distance, Speed
     {AutoMovement.STRAIGHT, 200, 1},
@@ -67,12 +76,14 @@ public class Robot extends TimedRobot {
   };
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
-  // Creates the autoRunner object
-  AutoRunner autoRunner;
   // Indicates what step of auto the robot is on
   int moveStep;
   // Indicates when auto should stop
   boolean autoStop;
+  // Auto Function Variables
+  AutoMovement moveType;
+  double special;
+  double speed;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -98,8 +109,11 @@ public class Robot extends TimedRobot {
 		rightChassis.setInverted(true);
 		// Defines our DifferentalDrive object with both sides of our drivetrain
     chassis = new DifferentialDrive(leftChassis, rightChassis);
+
+    // Setting encoder ports
+    leftEncoder = new Encoder(0,1);
+		rightEncoder = new Encoder(2,3);
     
-        
     // Sets the joystick port
     driver = new Joystick(0);
     // Controls
@@ -116,8 +130,6 @@ public class Robot extends TimedRobot {
     // Get X and Y entries
     xEntry = table.getEntry("xEntry");
     yEntry = table.getEntry("yEntry");
-
-    autoRunner = new AutoRunner(chassis);
   }
 
   /**
@@ -161,9 +173,7 @@ public class Robot extends TimedRobot {
     // Which auto are we using?
     selectedAuto = autoTemplate;
     // Adds info for the first auto step
-    autoRunner.moveType = (AutoMovement) selectedAuto[moveStep][0];
-    autoRunner.special = (double) selectedAuto[moveStep][1];
-    autoRunner.special = (double) selectedAuto[moveStep][2];
+    assignAutoVariables(moveStep);
 
     // Has the auto finished?
     autoStop = false;
@@ -175,12 +185,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     if (!autoStop){
-      if (autoRunner.move()){
+      if (autoRun()){
         moveStep++;
         if (moveStep < selectedAuto.length) {
-          autoRunner.moveType = (AutoMovement) selectedAuto[moveStep][0];
-          autoRunner.special = (double) selectedAuto[moveStep][1];
-          autoRunner.special = (double) selectedAuto[moveStep][2];
+          assignAutoVariables(moveStep);
         } else {autoStop = true;}
       }
     }
@@ -216,5 +224,34 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+  }
+
+  public void assignAutoVariables(int moveStepPar) {
+    moveType = (AutoMovement) selectedAuto[moveStepPar][0];
+    special = (double) selectedAuto[moveStepPar][1];
+    special = (double) selectedAuto[moveStepPar][2];
+  }
+
+  public boolean autoRun() {
+    if (moveType == AutoMovement.STRAIGHT) {
+      if (getDistance() > special){
+        return true;
+      } else {
+        chassis.arcadeDrive(speed, getHeading());
+        return false;
+      }
+    } else if (moveType == AutoMovement.TURN){
+      return false;
+    }
+    return false;
+  }
+
+  public double getDistance(){
+		return ((double)(leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
+  }
+  
+  public double getHeading() {
+    // Add in heading code
+    return 123.2;
   }
 }
