@@ -47,14 +47,6 @@ public class Robot extends TimedRobot {
   DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
   DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
 
-  // Pneumatic Piston Movement Variables
-  // True = activates the if statement in robotPeriodic
-  //boolean movePistonBall = false;
-  //boolean movePistonHatch = false;
-
-  boolean startTimerPiston = true;
-  double startTimePiston;
-
   PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
   PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
@@ -79,8 +71,6 @@ public class Robot extends TimedRobot {
     // set the state of the valve
     ballSolenoid.set(DoubleSolenoid.Value.kOff);
     hatchSolenoid.set(DoubleSolenoid.Value.kOff);
-    // d.set(DoubleSolenoid.Value.kForward);
-    // d.set(DoubleSolenoid.Value.kReverse);
 
     driver = new Joystick(0);
   }
