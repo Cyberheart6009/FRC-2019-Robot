@@ -1,8 +1,5 @@
 package frc.robot;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
