@@ -124,7 +124,7 @@ public class Robot extends TimedRobot {
 		leftChassis = new SpeedControllerGroup(leftFront, leftBack);
 		rightChassis = new SpeedControllerGroup(rightFront, rightBack);
 		// Inverts the right side of the drive train to account for the motors being physically flipped
-		rightChassis.setInverted(true);
+		leftChassis.setInverted(true);
 		// Defines our DifferentalDrive object with both sides of our drivetrain
     chassis = new DifferentialDrive(leftChassis, rightChassis);
 
@@ -339,7 +339,7 @@ public class Robot extends TimedRobot {
     } else if (xButton == true) {
       c.setClosedLoopControl(false);
     }*/
-    chassis.arcadeDrive(driver.getX(), driver.getY());
+    chassis.arcadeDrive(-driver.getX(), driver.getY());
   }
 
   /**
