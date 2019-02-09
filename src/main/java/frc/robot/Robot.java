@@ -30,6 +30,12 @@ import edu.wpi.first.wpilibj.Joystick;
 
 import frc.robot.PistonTimer;
 
+// Our New Imports
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Spark;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -277,6 +283,14 @@ public class Robot extends TimedRobot {
       }
     }
   }
+  
+  /**
+   * This function is called as teleop is Initiated
+   */
+  @Override
+  public void teleopInit() {
+    super.teleopInit();
+  }
 
   /**
    * This function is called periodically during operator control.
@@ -332,6 +346,7 @@ public class Robot extends TimedRobot {
     } else if (xButton == true) {
       c.setClosedLoopControl(false);
     }*/
+    chassis.arcadeDrive(driver.getX(), driver.getY());
   }
 
   /**
