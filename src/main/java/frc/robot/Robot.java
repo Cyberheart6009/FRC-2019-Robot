@@ -24,6 +24,12 @@ import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.*;
 // Custom Class
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Joystick;
+
+import frc.robot.PistonTimer;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -37,12 +43,17 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  // Variable that stores half way value of the screen
+  int middlePixel = 320;
+
+  // instantiating compressor
+  Compressor c = new Compressor(0);
 
   // SpeedController Object creations - Define all names of motors here
-	SpeedController leftFront, leftBack, rightFront, rightBack, gripper;
-	// Speed controller group used for new differential drive class
-	SpeedControllerGroup leftChassis, rightChassis;
-	// DifferentialDrive replaces the RobotDrive Class from previous years
+  SpeedController leftFront, leftBack, rightFront, rightBack, gripper;
+  // Speed controller group used for new differential drive class
+  SpeedControllerGroup leftChassis, rightChassis;
+  // DifferentialDrive replaces the RobotDrive Class from previous years
   DifferentialDrive chassis;
   
   // Both encoder sides
@@ -52,6 +63,14 @@ public class Robot extends TimedRobot {
 
   // Gyroscope Global
   AHRS gyro;
+  // instantiating solenoid
+  // params are the two port numbers for the forward channel and reverse channel
+  // respectively
+  DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
+  DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
+
+  PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
+  PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
   // Creates Joystick buttons
   Boolean aButton, bButton, xButton, yButton;
@@ -66,8 +85,6 @@ public class Robot extends TimedRobot {
   // A specific entry for the table
   NetworkTableEntry xEntry;
   NetworkTableEntry yEntry;
-  // Variable that stores half way value of the screen
-  int middlePixel = 320;
 
   enum AutoMovement {
     STRAIGHT,
@@ -135,6 +152,15 @@ public class Robot extends TimedRobot {
     // Get X and Y entries
     xEntry = table.getEntry("xEntry");
     yEntry = table.getEntry("yEntry");
+    // when enabled, the PCM will turn on the compressor when the pressure switch is
+    // closed
+    c.setClosedLoopControl(true);// or false
+
+    // set the state of the valve
+    ballSolenoid.set(DoubleSolenoid.Value.kOff);
+    hatchSolenoid.set(DoubleSolenoid.Value.kOff);
+
+    driver = new Joystick(0);
   }
 
   /**
@@ -149,9 +175,15 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // print compressor status to the console
-    //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
-    //System.out.println("Im In");
+    if (ballPiston.movePiston) {
+      ballPiston.movePistonFunction();
+    } 
+    if (hatchPiston.movePiston) {
+      hatchPiston.movePistonFunction();
+    }
+    
   }
 
   /**
@@ -256,6 +288,7 @@ public class Robot extends TimedRobot {
       xEntry.setDouble(xEntry.getDouble(1)+1);
     }
 
+    /*
     int threshold = 15;
     // drive according to vision input
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
@@ -267,7 +300,38 @@ public class Robot extends TimedRobot {
     } else {
       System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
       // drive straight
+    }*/
+    // Pneumatic controlls
+    aButton = driver.getRawButton(1);
+    bButton = driver.getRawButton(2);
+    xButton = driver.getRawButton(3);
+    yButton = driver.getRawButton(4);
+
+    if (aButton) {
+      ballPiston.movePiston = true;
     }
+    if (yButton) {
+      hatchPiston.movePiston = true;
+    }
+    /*if (aButton == true) {
+      c.setClosedLoopControl(false);
+      ballSolenoid.set(DoubleSolenoid.Value.kForward);
+    } else if (bButton == true){
+      ballSolenoid.set(DoubleSolenoid.Value.kReverse);
+      c.setClosedLoopControl(true);
+    }
+    if (yButton == true) {
+      c.setClosedLoopControl(false);
+      hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+    } else if (xButton == true) {
+      hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+      c.setClosedLoopControl(true);
+    }/*
+    if (bButton == true) {
+      c.setClosedLoopControl(true);
+    } else if (xButton == true) {
+      c.setClosedLoopControl(false);
+    }*/
   }
 
   /**
