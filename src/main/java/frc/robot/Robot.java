@@ -196,14 +196,17 @@ public class Robot extends TimedRobot {
      *  Movement Speed: (double) selectedAuto[autoStep][3]
      */
 
+    // Sets the threshold for vision
+    int threshold = 15;
+
      // Stops the entire robot code when autoStop = true;
     if (!autoStop){
       // If the STRAIGHT movement is selected
       if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.STRAIGHT) {
         if (getDistance() < ((double) selectedAuto[autoStep][2]) - 10){         // Forwards
-          chassis.arcadeDrive((double) selectedAuto[autoStep][3], getAngle());
+          chassis.arcadeDrive((double) selectedAuto[autoStep][3], 0);
         } else if (getDistance() > (double) selectedAuto[autoStep][2] + 10){    // Backwards
-          chassis.arcadeDrive((-(double) selectedAuto[autoStep][3]), getAngle());
+          chassis.arcadeDrive((-(double) selectedAuto[autoStep][3]), 0);
         } else {      // Destination Reached
           resetEncoders();
           autoStep++;
@@ -215,6 +218,28 @@ public class Robot extends TimedRobot {
           chassis.arcadeDrive((double) selectedAuto[autoStep][3], (double) selectedAuto[autoStep][2]);
         } else {    // Turn Complete
           resetEncoders();
+          autoStep++;
+        }
+      }
+      // If the VISION movement is selected
+      else if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.VISION){
+        if (true) {
+          if (xEntry.getDouble(0.0) < middlePixel + threshold) {
+            chassis.arcadeDrive(1.0, -10);
+            System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
+            // turn left
+          } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
+            chassis.arcadeDrive(1.0, 10);
+            System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
+            // turn right
+          } else {
+            chassis.arcadeDrive(1.0, 0);
+            System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
+            // drive straight
+          }
+        }
+        else {
+          // TODO: Add a coninuation section for auto code
           autoStep++;
         }
       }
@@ -230,9 +255,8 @@ public class Robot extends TimedRobot {
     if (yButton == true) {
       xEntry.setDouble(xEntry.getDouble(1)+1);
     }
-    
-    int threshold = 15;
 
+    int threshold = 15;
     // drive according to vision input
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
