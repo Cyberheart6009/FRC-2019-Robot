@@ -26,15 +26,8 @@ import com.kauailabs.navx.frc.*;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Joystick;
 
 import frc.robot.PistonTimer;
-
-// Our New Imports
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Spark;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -181,7 +174,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // print compressor status to the console
-    System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
     if (ballPiston.movePiston) {
       ballPiston.movePistonFunction();
