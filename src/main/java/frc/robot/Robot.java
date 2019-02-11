@@ -13,9 +13,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+
+import org.junit.Test.None;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,6 +34,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  AnalogInput ultrasonic;
 
   NetworkTableEntry xEntry;
   NetworkTableEntry yEntry;
@@ -66,6 +73,9 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
+    // Start ultrasonic sensor
+    ultrasonic = new AnalogInput(0);
+
     // Get default instance of automatically created Network Tables
     inst = NetworkTableInstance.getDefault();
 
@@ -100,9 +110,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // print compressor status to the console
-    //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    // System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
-    //System.out.println("Im In");
+    // System.out.println("Im In");
+
   }
 
   /**
@@ -138,6 +149,7 @@ public class Robot extends TimedRobot {
       // Put default auto code here
       break;
     }
+
   }
 
   /**
@@ -165,9 +177,9 @@ public class Robot extends TimedRobot {
     }
 
     if (yButton == true) {
-      xEntry.setDouble(xEntry.getDouble(1)+1);
+      xEntry.setDouble(xEntry.getDouble(1) + 1);
     }
-    
+
     // drive according to vision input
     if (xEntry.getDouble(0.0) > middlePixel) {
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
@@ -179,6 +191,29 @@ public class Robot extends TimedRobot {
       System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
       // drive straight
     }
+
+    /*
+     * // Ultrasonic Distance Auto Foolproof Mech. Compares middle, right, and left
+     * // distances and finds the open cargo. if (ultraMid > ultraLef && ultraMid >
+     * ultraRig) { // drive straight } else if (ultraMid < ultraLef || ultraMid <
+     * ultraRig || (ultraMid < ultraLef && ultraMid < ultraRig)) { if (ultraLef >
+     * ultraRig) { // adjust to left } else if (ultraLef < ultraRig) { // adjust to
+     * right } else { ; }
+     * 
+     * }
+     */
+
+    /*
+     * this.leftDistance = ultraLeft.getRangeInches();
+     * System.out.println(this.leftDistance); }
+     * 
+     * if (ultraMiddle.getRangeInches() < ultraRight.getRangeInches()) {
+     * this.rightDistance = ultraRight.getRangeInches();
+     * System.out.println(this.rightDistance); }
+     * 
+     * if (this.leftDistance > this.rightDistance) { // adjust left } else if
+     * (this.leftDistance < this.rightDistance) { // adjust right }
+     */
   }
 
   /**
@@ -187,4 +222,9 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
   }
+
+  public double getUltrasonicDistance() {
+    return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
+  }
+
 }
