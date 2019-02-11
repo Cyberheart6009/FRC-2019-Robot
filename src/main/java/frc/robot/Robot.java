@@ -20,12 +20,11 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SPI;
-
-import com.kauailabs.navx.frc.*;
-// Custom Class
-
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.AnalogInput;
+
+import com.kauailabs.navx.frc.*;
 
 import frc.robot.PistonTimer;
 
@@ -68,6 +67,7 @@ public class Robot extends TimedRobot {
   DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
   DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
 
+  // Custom class to enable timed piston extrude and intrude
   PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
   PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
@@ -159,6 +159,7 @@ public class Robot extends TimedRobot {
     ballSolenoid.set(DoubleSolenoid.Value.kOff);
     hatchSolenoid.set(DoubleSolenoid.Value.kOff);
 
+    // Maps a joystick to a variable
     driver = new Joystick(0);
   }
 
@@ -227,9 +228,6 @@ public class Robot extends TimedRobot {
      *  Movement Speed: (double) selectedAuto[autoStep][3]
      */
 
-    // Sets the threshold for vision
-    int threshold = 15;
-
      // Stops the entire robot code when autoStop = true;
     if (!autoStop){
       // If the STRAIGHT movement is selected
@@ -255,19 +253,7 @@ public class Robot extends TimedRobot {
       // If the VISION movement is selected
       else if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.VISION){
         if (true) {
-          if (xEntry.getDouble(0.0) < middlePixel + threshold) {
-            chassis.arcadeDrive(1.0, -10);
-            System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
-            // turn left
-          } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
-            chassis.arcadeDrive(1.0, 10);
-            System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
-            // turn right
-          } else {
-            chassis.arcadeDrive(1.0, 0);
-            System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
-            // drive straight
-          }
+          cameraControl();
         }
         else {
           // TODO: Add a coninuation section for auto code
@@ -290,10 +276,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-
-    if (yButton == true) {
-      xEntry.setDouble(xEntry.getDouble(1)+1);
-    }
 
     /*
     int threshold = 15;
@@ -319,6 +301,9 @@ public class Robot extends TimedRobot {
     }
     if (yButton) {
       hatchPiston.movePiston = true;
+    }
+    if (xButton) {
+      cameraControl();
     }
     /*if (aButton == true) {
       c.setClosedLoopControl(false);
@@ -349,17 +334,39 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
+  // Converts encoder counts into inches
   public double getDistance(){
 		return ((double)(leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
   }
 
+  // Resets both encoders with one function
   public void resetEncoders() {
     leftEncoder.reset();
     rightEncoder.reset();
   }
   
+  // gets the current gyro angle
   public double getAngle() {
     // Add in heading code
     return gyro.getAngle();
+  }
+
+  // Takes camera input and converts it into a robot action
+  public void cameraControl() {
+    // Sets the threshold for vision
+    int threshold = 15;
+    if (xEntry.getDouble(0.0) < middlePixel + threshold) {
+      chassis.arcadeDrive(1.0, -10);
+      System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
+      // turn left
+    } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
+      chassis.arcadeDrive(1.0, 10);
+      System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
+      // turn right
+    } else {
+      chassis.arcadeDrive(1.0, 0);
+      System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
+      // drive straight
+    }
   }
 }
