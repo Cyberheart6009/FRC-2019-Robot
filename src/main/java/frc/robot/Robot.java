@@ -96,7 +96,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION
+    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH
   }
 
   Object[][] autoTemplate = {
@@ -104,6 +104,292 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 200, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 90, 0.5 } };
+
+  // Possible Automodes
+
+  /*
+   =================================== 
+   AUTOMODES FOR SIDE CARGOSHIP HOLDS
+   ===================================
+   */
+
+  // "1" indicates that the target cargo hold is the closest hold to the alliance
+  // station
+
+  Object[][] sideShip1HatchLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 214, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 167, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+  Object[][] sideShip2HatchLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 236, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 188.5, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip3HatchLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 258, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 210, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip1HatchRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 214, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 167, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+  Object[][] sideShip2HatchRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 236, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 188.5, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip3HatchRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 258, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Hatch
+      { AutoMovement.EJECTHATCH },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 210, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip1BallLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 214, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 167, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+  Object[][] sideShip2BallLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 236, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 188.5, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip3BallLeft = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 258, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 210, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip1BallRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 214, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 167, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+  Object[][] sideShip2BallRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 236, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 188.5, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  Object[][] sideShip3BallRight = {
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 258, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, -90, 0.5 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 68, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 90, 0.5 },
+      // Movement type, Distance, Speed
+      { AutoMovement.STRAIGHT, 210, 1 },
+      // Movement type, Rotation, Speed
+      { AutoMovement.TURN, 7.7, 0.5 },
+      // TODO: Figure out how to pick up a new ball
+      // Maybe use ultrasonic distance- sensors
+  };
+
+  /*
+   * =================================== AUTOMODES FOR FRONT CARGOSHIP HOLDS
+   * ===================================
+   */
+
+  Object[][] frontShipBall = {
+      // Movement type, Distance, Speed
+      // Not driving full distance because vision takes over
+      { AutoMovement.STRAIGHT, 168, 1 },
+      // Activate Vision
+      { AutoMovement.VISION },
+      // Ball
+      { AutoMovement.EJECTBALL },
+      // Movement type, Distance, Speed
+  };
+
+  Object[][] frontShipHatch = {
+    // Movement type, Distance, Speed
+    // Not driving full distance because vision takes over
+    { AutoMovement.STRAIGHT, 168, 1 },
+    // Activate Vision
+    { AutoMovement.VISION },
+    // Ball
+    { AutoMovement.EJECTHATCH },
+    // Movement type, Distance, Speed
+};
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
   // Indicates what step of auto the robot is on
@@ -245,28 +531,38 @@ public class Robot extends TimedRobot {
     // Stops the entire robot code when autoStop = true;
     if (!autoStop) {
       // If the STRAIGHT movement is selected
-      if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.STRAIGHT) {
-        if (getDistance() < ((double) selectedAuto[autoStep][2]) - 10) { // Forwards
-          chassis.arcadeDrive((double) selectedAuto[autoStep][3], 0);
-        } else if (getDistance() > (double) selectedAuto[autoStep][2] + 10) { // Backwards
-          chassis.arcadeDrive((-(double) selectedAuto[autoStep][3]), 0);
+      if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.STRAIGHT) {
+        if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
+          chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
+        } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
+          chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
         } else { // Destination Reached
           resetEncoders();
           autoStep++;
         }
       }
       // If the TURN movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.TURN) {
-        if (getAngle() < ((double) selectedAuto[autoStep][2] - 10)
-            || getAngle() < ((double) selectedAuto[autoStep][2] + 10)) { // Turning code
-          chassis.arcadeDrive((double) selectedAuto[autoStep][3], (double) selectedAuto[autoStep][2]);
+      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.TURN) {
+        if (getAngle() < ((double) selectedAuto[autoStep][1] - 10)
+            || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
+          chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
         } else { // Turn Complete
           resetEncoders();
           autoStep++;
         }
       }
+      // If EJECTHATCH is selected
+      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
+        // TODO: Figure out how to drop the hatch
+      }
+
+      // If EJECTBALL is selected
+      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
+        // TODO: Figure out how to drop the ball
+      }
+
       // If the VISION movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][1] == AutoMovement.VISION) {
+      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
         if (true) {
           cameraControl();
         } else {
