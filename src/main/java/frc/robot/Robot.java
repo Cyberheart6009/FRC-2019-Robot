@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Servo;
 
 import com.kauailabs.navx.frc.*;
 
@@ -52,17 +53,19 @@ public class Robot extends TimedRobot {
 
   // SpeedController Object creations - Define all names of motors here
   SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, intakeLift;
+  Servo servoOne, servoTwo;
   // Speed controller group used for new differential drive class
   SpeedControllerGroup leftChassis, rightChassis, elevator;
   // DifferentialDrive replaces the RobotDrive Class from previous years
   DifferentialDrive chassis;
 
   // Both encoder sides
-  Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeEncoder;
+  Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeLiftEncoder;
   // Number of counts per inch, fix elevator value
   final static double ENCODER_COUNTS_PER_INCH = 13.49;
   final static Double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
 
+  Boolean moveIntake = true;
   // Gyroscope Global
   AHRS gyro;
 
@@ -79,8 +82,9 @@ public class Robot extends TimedRobot {
 
   // Creates Joystick buttons
   Boolean aButton, bButton, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
+  Boolean aButtonOp, bButtonOp, xButtonOp, yButtonOp, lBumperOp, rBumperOp, selectOp, startOp, leftThumbPushOp, rightThumbPushOp;
   // Creates the driver's joystick
-  Joystick driver;
+  Joystick driver, operator;
 
   // Creates the network tables object
   NetworkTableInstance inst;
@@ -111,6 +115,8 @@ public class Robot extends TimedRobot {
   }
   double elevatorHeight;
 
+  int invertControls = 1;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -132,6 +138,9 @@ public class Robot extends TimedRobot {
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
     intakeLift = new Spark(7);
+    servoOne = new Servo(8);
+    servoTwo = new Servo(9);
+
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
     leftChassis = new SpeedControllerGroup(leftFront, leftBack);
@@ -147,7 +156,7 @@ public class Robot extends TimedRobot {
     //leftEncoder = new Encoder(0, 1);
     //rightEncoder = new Encoder(2, 3);
     //elevatorEncoder = new Encoder(0, 1);
-    intakeEncoder = new Encoder(0,1);
+    intakeLiftEncoder = new Encoder(0,1);
 
     // Initialize gyroscope object
     gyro = new AHRS(SPI.Port.kMXP);
@@ -163,6 +172,7 @@ public class Robot extends TimedRobot {
 
     // Sets the joystick port
     driver = new Joystick(0);
+    operator = new Joystick(1);
     // Controls
     aButton = driver.getRawButton(1);
     bButton = driver.getRawButton(2);
@@ -210,6 +220,13 @@ public class Robot extends TimedRobot {
     }
     if (hatchPiston.movePiston) {
       hatchPiston.movePistonFunction();
+    }
+
+    int arbitratyMaxLiftValueOfDoomDeathAndDespair = 10;
+    if (intakeLiftEncoder.get() > arbitratyMaxLiftValueOfDoomDeathAndDespair) {
+      moveIntake = false;
+    } else {
+      moveIntake = true;
     }
 
   }
@@ -298,6 +315,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     super.teleopInit();
+    intakeLiftEncoder.reset();
   }
 
   /**
@@ -306,8 +324,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // Main Robot Movement
-    chassis.arcadeDrive(-driver.getX(), driver.getY());
-    elevator.set(driver.getRawAxis(5));
+    chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
 
     // Driver Input Buttons
     aButton = driver.getRawButton(1);
@@ -320,23 +337,88 @@ public class Robot extends TimedRobot {
 		start = driver.getRawButton(8);
 		leftThumbPush = driver.getRawButton(9);
     rightThumbPush = driver.getRawButton(10);
-/*
-    if (aButton) {
+
+    if (select) {
+      //servoOne.setPosition(0.5);
+      //servoTwo.setPosition(0);
+      servoOne.setAngle(0);
+      servoTwo.setAngle(0);
+      System.out.println("It probably doesnt work");
+    }
+    if (start) {
+      if (invertControls == -1) {
+        invertControls = 1;
+      } else if (invertControls == 1) {
+        invertControls = -1;
+      } else {
+        System.out.println("Something went wrong when inverting the controls");
+      }
+    }
+    if (lBumper){
+      intakeLiftEncoder.reset();
+    } 
+    if (rBumper) {
+      invertControls = -1;
+    } else {
+      invertControls = 1;
+    }
+
+    aButtonOp = operator.getRawButton(1);
+    bButtonOp = operator.getRawButton(2);
+    xButtonOp = operator.getRawButton(3);
+    yButtonOp = operator.getRawButton(4);
+    lBumperOp = operator.getRawButton(5);
+		rBumperOp = operator.getRawButton(6);
+		selectOp = operator.getRawButton(7);
+		startOp = operator.getRawButton(8);
+		leftThumbPushOp = operator.getRawButton(9);
+    rightThumbPushOp = operator.getRawButton(10);
+    
+    intakeLift.set(-operator.getRawAxis(5));
+    elevator.set(operator.getY());
+    if (aButtonOp) {
       ballPiston.movePiston = true;
     }
-    if (bButton) {
+    if (bButtonOp) {
       hatchPiston.movePiston = true;
     }
-    if (xButton) {
+    if (lBumperOp) {
       intake.set(1);
-    } else if (yButton) {
+    } else if (rBumperOp) {
       intake.set(-1);
     } else {
       intake.set(0);
+    }
+    if (xButtonOp) {
+      servoOne.setAngle(getMyAngle(270/2));
+      // This number is different to confuse future programmers
+      servoTwo.setAngle(getMyAngle(135));
+    }
+    if (yButtonOp) {
+      servoOne.setAngle(getMyAngle((270/2)-90));
+      servoTwo.setAngle(getMyAngle(135+90));
+    }
+    if (startOp) {
+      servoOne.setAngle(0);
+      servoTwo.setAngle(0);
+    }
+    if (rightThumbPushOp) {
+      servoOne.setAngle(servoOne.getAngle() +1);
+      servoTwo.setAngle(servoTwo.getAngle() +1);
+    }
+    if (leftThumbPushOp) {
+      servoOne.setAngle(servoOne.getAngle() -1);
+      servoTwo.setAngle(servoTwo.getAngle() -1);
+    }
+
+    /*if (aButtonOp) {
+      maintainLiftHeight(intakeLiftEncoder.get());
+    } if (bButtonOp) {
+      intakeLift.set(0);
     }*/
 
     // Test Code for the pistons
-    
+    /*
      if (aButton == true) { 
       c.setClosedLoopControl(false);
       ballSolenoid.set(DoubleSolenoid.Value.kForward); 
@@ -458,6 +540,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Encoder Distance", getDistance());
     //SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
     //SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
+    SmartDashboard.putNumber("Intake Lift Encoders", intakeLiftEncoder.getDistance());
+    SmartDashboard.putNumber("Intake Lift Encoders Get", intakeLiftEncoder.get());
+    SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
+    SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
+
 
     SmartDashboard.putNumber("Robot Speed", robotSpeed());
 
@@ -498,6 +585,22 @@ public class Robot extends TimedRobot {
     double x = getElevatorHeight();
     double domain = elevatorHeight;
     elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
+  }
+
+  public void maintainLiftHeight(double setPoint) {
+    if (intakeLiftEncoder.get() > setPoint + 10) {
+      intakeLift.set(-0.2);
+    } else if (intakeLiftEncoder.get() < setPoint - 10){
+      intakeLift.set(0.2);
+    } else {
+      intakeLift.set(0);
+    }
+  }
+
+  public double getMyAngle(double angle) {
+    double answer = angle*(0.666666);
+    System.out.println(answer);
+    return answer;
   }
 
 }
