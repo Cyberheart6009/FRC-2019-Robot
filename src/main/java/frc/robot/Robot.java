@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
-
-import org.junit.Test.None;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -58,9 +55,9 @@ public class Robot extends TimedRobot {
   Compressor c = new Compressor(0);
 
   // SpeedController Object creations - Define all names of motors here
-  SpeedController leftFront, leftBack, rightFront, rightBack, gripper;
+  SpeedController leftFront, leftBack, rightFront, rightBack, gripper, elevatorOne, elevatorTwo;
   // Speed controller group used for new differential drive class
-  SpeedControllerGroup leftChassis, rightChassis;
+  SpeedControllerGroup leftChassis, rightChassis, elevator;
   // DifferentialDrive replaces the RobotDrive Class from previous years
   DifferentialDrive chassis;
 
@@ -75,15 +72,15 @@ public class Robot extends TimedRobot {
   // instantiating solenoid
   // params are the two port numbers for the forward channel and reverse channel
   // respectively
-  DoubleSolenoid ballSolenoid = new DoubleSolenoid(0, 1);
-  DoubleSolenoid hatchSolenoid = new DoubleSolenoid(2, 3);
+  DoubleSolenoid ballSolenoid;
+  DoubleSolenoid hatchSolenoid;
 
   // Custom class to enable timed piston extrude and intrude
   PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
   PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
   // Creates Joystick buttons
-  Boolean aButton, bButton, xButton, yButton;
+  Boolean aButton, bButton, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
   // Creates the driver's joystick
   Joystick driver;
 
@@ -415,10 +412,13 @@ public class Robot extends TimedRobot {
     rightFront = new Spark(2);
     rightBack = new Spark(3);
     gripper = new Spark(4);
+    elevatorOne = new Spark(5);
+    elevatorTwo = new Spark(6);
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
     leftChassis = new SpeedControllerGroup(leftFront, leftBack);
     rightChassis = new SpeedControllerGroup(rightFront, rightBack);
+    elevator = new SpeedControllerGroup(elevatorOne, elevatorTwo);
     // Inverts the right side of the drive train to account for the motors being
     // physically flipped
     leftChassis.setInverted(true);
@@ -428,10 +428,14 @@ public class Robot extends TimedRobot {
     // Setting encoder ports
     leftEncoder = new Encoder(0, 1);
     rightEncoder = new Encoder(2, 3);
-    elevatorEncoder = new Encoder(sourceA, sourceB);
+    elevatorEncoder = new Encoder(4, 5);
 
     // Initialize gyroscope object
     gyro = new AHRS(SPI.Port.kMXP);
+
+    // Compressor solenoids
+    ballSolenoid = new DoubleSolenoid(0, 1);
+    hatchSolenoid = new DoubleSolenoid(2, 3);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -587,38 +591,37 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    // Main Robot Movement
+    chassis.arcadeDrive(-driver.getX(), driver.getY());
+    elevator.set(driver.getRawAxis(5));
 
-    /*
-     * int threshold = 15; // drive according to vision input if
-     * (xEntry.getDouble(0.0) < middlePixel + threshold) {
-     * System.out.println("Turning Left " + xEntry.getDouble(middlePixel)); // turn
-     * left } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
-     * System.out.println("Turning Right " + xEntry.getDouble(middlePixel)); // turn
-     * right } else { System.out.println("Driving Straight " +
-     * xEntry.getDouble(middlePixel)); // drive straight }
-     */
-    // Pneumatic controlls
+    // Driver Input Buttons
     aButton = driver.getRawButton(1);
     bButton = driver.getRawButton(2);
     xButton = driver.getRawButton(3);
     yButton = driver.getRawButton(4);
+    lBumper = driver.getRawButton(5);
+		rBumper = driver.getRawButton(6);
+		select = driver.getRawButton(7);
+		start = driver.getRawButton(8);
+		leftThumbPush = driver.getRawButton(9);
+    rightThumbPush = driver.getRawButton(10);
 
     if (aButton) {
       ballPiston.movePiston = true;
     }
-
-    if (yButton == true) {
-      xEntry.setDouble(xEntry.getDouble(1) + 1);
-    }
-
-    // drive according to vision input
-    if (xEntry.getDouble(0.0) > middlePixel) {
-    if (yButton) {
+    if (bButton) {
       hatchPiston.movePiston = true;
     }
     if (xButton) {
-      cameraControl();
+      gripper.set(1);
+    } else if (yButton) {
+      gripper.set(-1);
+    } else {
+      gripper.set(0);
     }
+
+    // Test Code for the pistons
     /*
      * if (aButton == true) { c.setClosedLoopControl(false);
      * ballSolenoid.set(DoubleSolenoid.Value.kForward); } else if (bButton == true){
@@ -631,7 +634,16 @@ public class Robot extends TimedRobot {
      * c.setClosedLoopControl(true); } else if (xButton == true) {
      * c.setClosedLoopControl(false); }
      */
-    chassis.arcadeDrive(-driver.getX(), driver.getY());
+      // Test code for the Auto
+       /*
+     * int threshold = 15; // drive according to vision input if
+     * (xEntry.getDouble(0.0) < middlePixel + threshold) {
+     * System.out.println("Turning Left " + xEntry.getDouble(middlePixel)); // turn
+     * left } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
+     * System.out.println("Turning Right " + xEntry.getDouble(middlePixel)); // turn
+     * right } else { System.out.println("Driving Straight " +
+     * xEntry.getDouble(middlePixel)); // drive straight }
+     */
   }
 
   /**
