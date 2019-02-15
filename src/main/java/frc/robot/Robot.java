@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -51,33 +50,32 @@ public class Robot extends TimedRobot {
   // Variable that stores half way value of the screen
   int middlePixel = 320;
 
-  // instantiating compressor
-  Compressor c = new Compressor(0);
-
   // SpeedController Object creations - Define all names of motors here
-  SpeedController leftFront, leftBack, rightFront, rightBack, gripper, elevatorOne, elevatorTwo;
+  SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, intakeLift;
   // Speed controller group used for new differential drive class
   SpeedControllerGroup leftChassis, rightChassis, elevator;
   // DifferentialDrive replaces the RobotDrive Class from previous years
   DifferentialDrive chassis;
 
   // Both encoder sides
-  Encoder leftEncoder, rightEncoder, elevatorEncoder;
+  Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeEncoder;
   // Number of counts per inch, fix elevator value
   final static double ENCODER_COUNTS_PER_INCH = 13.49;
   final static Double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
 
   // Gyroscope Global
   AHRS gyro;
+
+  // instantiating compressor
+  Compressor c;
   // instantiating solenoid
   // params are the two port numbers for the forward channel and reverse channel
   // respectively
   DoubleSolenoid ballSolenoid;
   DoubleSolenoid hatchSolenoid;
-
   // Custom class to enable timed piston extrude and intrude
-  PistonTimer ballPiston = new PistonTimer(ballSolenoid, c, false);
-  PistonTimer hatchPiston = new PistonTimer(hatchSolenoid, c, false);
+  PistonTimer ballPiston;
+  PistonTimer hatchPiston;
 
   // Creates Joystick buttons
   Boolean aButton, bButton, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
@@ -108,6 +106,11 @@ public class Robot extends TimedRobot {
   // Indicates when auto should stop
   boolean autoStop;
 
+  enum ElevatorHeight {
+    HATCH_ONE, HATCH_TWO, HATCH_THREE, BALL_ONE, BALL_TWO, BALL_THREE
+  }
+  double elevatorHeight;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -119,15 +122,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
 
     // Start ultrasonic sensor
-    ultrasonic = new AnalogInput(0);
+    // ultrasonic = new AnalogInput(0);
     // Defines all the ports of each of the motors
     leftFront = new Spark(0);
     leftBack = new Spark(1);
     rightFront = new Spark(2);
     rightBack = new Spark(3);
-    gripper = new Spark(4);
+    intake = new Spark(4);
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
+    intakeLift = new Spark(7);
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
     leftChassis = new SpeedControllerGroup(leftFront, leftBack);
@@ -140,16 +144,22 @@ public class Robot extends TimedRobot {
     chassis = new DifferentialDrive(leftChassis, rightChassis);
 
     // Setting encoder ports
-    leftEncoder = new Encoder(0, 1);
-    rightEncoder = new Encoder(2, 3);
-    elevatorEncoder = new Encoder(4, 5);
+    //leftEncoder = new Encoder(0, 1);
+    //rightEncoder = new Encoder(2, 3);
+    //elevatorEncoder = new Encoder(0, 1);
+    intakeEncoder = new Encoder(0,1);
 
     // Initialize gyroscope object
     gyro = new AHRS(SPI.Port.kMXP);
 
+    // Initializes compressor
+    c = new Compressor(0);
     // Compressor solenoids
-    ballSolenoid = new DoubleSolenoid(0, 1);
-    hatchSolenoid = new DoubleSolenoid(2, 3);
+    ballSolenoid = new DoubleSolenoid(1, 0);
+    hatchSolenoid = new DoubleSolenoid(3, 2);
+    // Initializes custom classes
+    ballPiston = new PistonTimer(ballSolenoid, c, false);
+    hatchPiston = new PistonTimer(hatchSolenoid, c, false);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -310,7 +320,7 @@ public class Robot extends TimedRobot {
 		start = driver.getRawButton(8);
 		leftThumbPush = driver.getRawButton(9);
     rightThumbPush = driver.getRawButton(10);
-
+/*
     if (aButton) {
       ballPiston.movePiston = true;
     }
@@ -318,26 +328,32 @@ public class Robot extends TimedRobot {
       hatchPiston.movePiston = true;
     }
     if (xButton) {
-      gripper.set(1);
+      intake.set(1);
     } else if (yButton) {
-      gripper.set(-1);
+      intake.set(-1);
     } else {
-      gripper.set(0);
-    }
+      intake.set(0);
+    }*/
 
     // Test Code for the pistons
-    /*
-     * if (aButton == true) { c.setClosedLoopControl(false);
-     * ballSolenoid.set(DoubleSolenoid.Value.kForward); } else if (bButton == true){
-     * ballSolenoid.set(DoubleSolenoid.Value.kReverse);
-     * c.setClosedLoopControl(true); } if (yButton == true) {
-     * c.setClosedLoopControl(false);
-     * hatchSolenoid.set(DoubleSolenoid.Value.kForward); } else if (xButton == true)
-     * { hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
-     * c.setClosedLoopControl(true); }/* if (bButton == true) {
-     * c.setClosedLoopControl(true); } else if (xButton == true) {
-     * c.setClosedLoopControl(false); }
-     */
+    
+     if (aButton == true) { 
+      c.setClosedLoopControl(false);
+      ballSolenoid.set(DoubleSolenoid.Value.kForward); 
+    } else if (bButton == true){
+      ballSolenoid.set(DoubleSolenoid.Value.kReverse);
+      c.setClosedLoopControl(true); 
+    } if (yButton == true) {
+      c.setClosedLoopControl(false);
+      hatchSolenoid.set(DoubleSolenoid.Value.kForward); 
+    } else if (xButton == true) { 
+      hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+      c.setClosedLoopControl(true); 
+    } /*if (bButton == true) {
+      c.setClosedLoopControl(true); 
+    } else if (xButton == true) {
+      c.setClosedLoopControl(false); }
+    
       // Test code for the Auto
        /*
      * int threshold = 15; // drive according to vision input if
@@ -359,13 +375,14 @@ public class Robot extends TimedRobot {
 
   // Converts encoder counts into inches
   public double getDistance() {
-    return ((double) (leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
+    //return ((double) (leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
+    return 1;
   }
 
   // Resets both encoders with one function
   public void resetEncoders() {
-    leftEncoder.reset();
-    rightEncoder.reset();
+    //leftEncoder.reset();
+    //rightEncoder.reset();
   }
 
   // gets the current gyro angle
@@ -418,16 +435,18 @@ public class Robot extends TimedRobot {
 
   // Get elevator height
   private double getElevatorHeight() {
-    return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
+    //return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
+    return 1;
   }
 
   // Calculates the robotSpeed
   public double robotSpeed() {
     // Calculates current speed of the robot in m/s
-    robotSpeed = ((getDistance() - oldEncoderCounts) / (System.currentTimeMillis() - oldTime)) * 0.0254;
-    oldTime = System.currentTimeMillis();
-    oldEncoderCounts = getDistance();
-    return (double) robotSpeed;
+    //robotSpeed = ((getDistance() - oldEncoderCounts) / (System.currentTimeMillis() - oldTime)) * 0.0254;
+    //oldTime = System.currentTimeMillis();
+    //oldEncoderCounts = getDistance();
+    //return (double) robotSpeed;
+    return 1;
   }
 
   // Updates SmartDashboard
@@ -437,8 +456,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
 
     SmartDashboard.putNumber("Encoder Distance", getDistance());
-    SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
-    SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
+    //SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
+    //SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
 
     SmartDashboard.putNumber("Robot Speed", robotSpeed());
 
@@ -450,6 +469,35 @@ public class Robot extends TimedRobot {
 
   public double getUltrasonicDistance() {
     return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
+  }
+
+  public void elevatorMovement(ElevatorHeight level) {
+    double firstHeight = 0;
+    switch (level) {
+      case HATCH_ONE:
+        elevatorHeight = firstHeight;
+        break;
+      case HATCH_TWO:
+        elevatorHeight = firstHeight + 24;
+        break;
+      case HATCH_THREE:
+        elevatorHeight = firstHeight + 48;
+        break;
+      case BALL_ONE:
+        elevatorHeight = firstHeight + 10.25;
+        break;
+      case BALL_TWO:
+        elevatorHeight = firstHeight + 38.25;
+        break;
+      case BALL_THREE:
+        elevatorHeight = firstHeight + 66.25;
+        break;
+      default:
+        break;
+    }
+    double x = getElevatorHeight();
+    double domain = elevatorHeight;
+    elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
   }
 
 }

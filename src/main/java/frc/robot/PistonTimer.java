@@ -26,12 +26,12 @@ public class PistonTimer {
             startStartTime = false;
         }
         if (System.currentTimeMillis() < this.startTime + 500) {
-          c.setClosedLoopControl(false);
-          piston.set(DoubleSolenoid.Value.kForward);
+          this.c.setClosedLoopControl(false);
+          this.piston.set(DoubleSolenoid.Value.kForward);
         } else {
-          piston.set(DoubleSolenoid.Value.kReverse);
-          c.setClosedLoopControl(true);
-          startStartTime = true;
+          this.piston.set(DoubleSolenoid.Value.kReverse);
+          this.c.setClosedLoopControl(true);
+          this.startStartTime = true;
           this.movePiston = false;
         }
       }
