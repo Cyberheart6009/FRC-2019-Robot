@@ -27,8 +27,6 @@ import edu.wpi.first.wpilibj.Servo;
 
 import com.kauailabs.navx.frc.*;
 
-import frc.robot.PistonTimer;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -77,14 +75,22 @@ public class Robot extends TimedRobot {
   DoubleSolenoid ballSolenoid;
   DoubleSolenoid hatchSolenoid;
   // Custom class to enable timed piston extrude and intrude
-  PistonTimer ballPiston;
-  PistonTimer hatchPiston;
+  boolean doFire;
+  double startPistonTime;
+  boolean startStartPistonTime = true;
+  enum RobotMode {
+    HATCH, CARGO
+  }
+  RobotMode currentRobotMode = RobotMode.HATCH;
 
   // Creates Joystick buttons
   Boolean aButton, bButton, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
   Boolean aButtonOp, bButtonOp, xButtonOp, yButtonOp, lBumperOp, rBumperOp, selectOp, startOp, leftThumbPushOp, rightThumbPushOp;
   // Creates the driver's joystick
   Joystick driver, operator;
+  double buttonTime = 0;
+  boolean startButtonTime = true;
+  boolean pressed = false;
 
   // Creates the network tables object
   NetworkTableInstance inst;
@@ -116,6 +122,10 @@ public class Robot extends TimedRobot {
   double elevatorHeight;
 
   int invertControls = 1;
+
+  // TODO: Modify these temp variables
+  Boolean elevatorLimitSwitch = false;
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -153,9 +163,9 @@ public class Robot extends TimedRobot {
     chassis = new DifferentialDrive(leftChassis, rightChassis);
 
     // Setting encoder ports
-    //leftEncoder = new Encoder(0, 1);
-    //rightEncoder = new Encoder(2, 3);
-    //elevatorEncoder = new Encoder(0, 1);
+    leftEncoder = new Encoder(6, 7);
+    rightEncoder = new Encoder(4, 5);
+    elevatorEncoder = new Encoder(2, 3);
     intakeLiftEncoder = new Encoder(0,1);
 
     // Initialize gyroscope object
@@ -164,11 +174,8 @@ public class Robot extends TimedRobot {
     // Initializes compressor
     c = new Compressor(0);
     // Compressor solenoids
-    ballSolenoid = new DoubleSolenoid(1, 0);
-    hatchSolenoid = new DoubleSolenoid(3, 2);
-    // Initializes custom classes
-    ballPiston = new PistonTimer(ballSolenoid, c, false);
-    hatchPiston = new PistonTimer(hatchSolenoid, c, false);
+    hatchSolenoid = new DoubleSolenoid(1, 0);
+    ballSolenoid = new DoubleSolenoid(2, 3);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -215,11 +222,15 @@ public class Robot extends TimedRobot {
     // System.out.println("Im In");
     updateSmartDashboard();
 
-    if (ballPiston.movePiston) {
-      ballPiston.movePistonFunction();
+    if (pressed) {
+      if (buttonTime + 200 < System.currentTimeMillis()) {
+        pressed = false;
+
+      }
     }
-    if (hatchPiston.movePiston) {
-      hatchPiston.movePistonFunction();
+
+    if (doFire) {
+      fire();
     }
 
     int arbitratyMaxLiftValueOfDoomDeathAndDespair = 10;
@@ -338,13 +349,6 @@ public class Robot extends TimedRobot {
 		leftThumbPush = driver.getRawButton(9);
     rightThumbPush = driver.getRawButton(10);
 
-    if (select) {
-      //servoOne.setPosition(0.5);
-      //servoTwo.setPosition(0);
-      servoOne.setAngle(0);
-      servoTwo.setAngle(0);
-      System.out.println("It probably doesnt work");
-    }
     if (start) {
       if (invertControls == -1) {
         invertControls = 1;
@@ -375,12 +379,19 @@ public class Robot extends TimedRobot {
     rightThumbPushOp = operator.getRawButton(10);
     
     intakeLift.set(-operator.getRawAxis(5));
-    elevator.set(operator.getY());
-    if (aButtonOp) {
-      ballPiston.movePiston = true;
+
+    if ((elevatorLimitSwitch && operator.getY() < 0) || !elevatorLimitSwitch) {
+      elevator.set(operator.getY());
     }
-    if (bButtonOp) {
-      hatchPiston.movePiston = true;
+    if (aButtonOp) {
+      doFire = true;
+    }
+    if (xButtonOp) {
+      if (!pressed) {
+        switchMode();
+        pressed = true;
+        buttonTime = System.currentTimeMillis();
+      }
     }
     if (lBumperOp) {
       intake.set(1);
@@ -389,15 +400,12 @@ public class Robot extends TimedRobot {
     } else {
       intake.set(0);
     }
-    if (xButtonOp) {
-      servoOne.setAngle(getMyAngle(270/2));
-      // This number is different to confuse future programmers
-      servoTwo.setAngle(getMyAngle(135));
+    if (startOp) {
+      elevatorEncoder.reset();
     }
-    if (yButtonOp) {
-      servoOne.setAngle(getMyAngle((270/2)-90));
-      servoTwo.setAngle(getMyAngle(135+90));
-    }
+
+    // This block of code is for testing the servos
+    /*
     if (startOp) {
       servoOne.setAngle(0);
       servoTwo.setAngle(0);
@@ -409,7 +417,9 @@ public class Robot extends TimedRobot {
     if (leftThumbPushOp) {
       servoOne.setAngle(servoOne.getAngle() -1);
       servoTwo.setAngle(servoTwo.getAngle() -1);
-    }
+    } */
+
+
 
     /*if (aButtonOp) {
       maintainLiftHeight(intakeLiftEncoder.get());
@@ -538,20 +548,22 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
 
     SmartDashboard.putNumber("Encoder Distance", getDistance());
-    //SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
-    //SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
+    SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
+    SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
+    
     SmartDashboard.putNumber("Intake Lift Encoders", intakeLiftEncoder.getDistance());
-    SmartDashboard.putNumber("Intake Lift Encoders Get", intakeLiftEncoder.get());
     SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
     SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
-
 
     SmartDashboard.putNumber("Robot Speed", robotSpeed());
 
     String xEnt = xEntry.toString();
     SmartDashboard.putString("X Entry", xEnt);
 
+    SmartDashboard.putNumber("Elevator Encoders", elevatorEncoder.get());
     SmartDashboard.putNumber("Elevator Height", getElevatorHeight());
+
+    SmartDashboard.putString("Current Robot mode", currentRobotMode.name());
   }
 
   public double getUltrasonicDistance() {
@@ -597,10 +609,70 @@ public class Robot extends TimedRobot {
     }
   }
 
+  public void servoClose() {
+    servoOne.setAngle(getMyAngle(270/2));
+    // This number is different to confuse future programmers
+    servoTwo.setAngle(getMyAngle(135));
+  }
+  public void servoOpen() {
+    servoOne.setAngle(getMyAngle((270/2)-90));
+    servoTwo.setAngle(getMyAngle(135+90));
+  }
+
   public double getMyAngle(double angle) {
     double answer = angle*(0.666666);
-    System.out.println(answer);
+    //System.out.println(answer);
     return answer;
+  }
+
+  public void switchMode() {
+    if (currentRobotMode == RobotMode.HATCH) {
+      currentRobotMode = RobotMode.CARGO;
+      servoClose();
+      System.out.println("We are in Cargo Mode");
+    } else {
+      currentRobotMode = RobotMode.HATCH;
+      servoOpen();
+      System.out.println("We are in Hatch Mode");
+    }
+  }
+
+  public void startPistonTimer() {
+    startPistonTime = System.currentTimeMillis();
+  }
+
+  public void fire() {
+    if (startStartPistonTime) {
+        startPistonTimer();
+        startStartPistonTime = false;
+    }
+    if (currentRobotMode == RobotMode.HATCH) {
+      if (System.currentTimeMillis() < this.startPistonTime + 500) {
+        c.setClosedLoopControl(false);
+        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+        servoClose();
+      } else {
+        hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+        c.setClosedLoopControl(true);
+        startStartPistonTime = true;
+        doFire = false;
+        servoOpen();
+      }
+    } else {
+      if (System.currentTimeMillis() < this.startPistonTime + 150) {
+        servoOpen();
+      } else if (System.currentTimeMillis() < this.startPistonTime + 650) {
+        c.setClosedLoopControl(false);
+        ballSolenoid.set(DoubleSolenoid.Value.kForward);
+      }
+      else {
+        ballSolenoid.set(DoubleSolenoid.Value.kReverse);
+        c.setClosedLoopControl(true);
+        startStartPistonTime = true;
+        doFire = false;
+        servoClose();
+      }
+    }
   }
 
 }
