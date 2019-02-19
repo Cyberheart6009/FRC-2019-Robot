@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
   Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeLiftEncoder;
   // Number of counts per inch, fix elevator value
   final static double ENCODER_COUNTS_PER_INCH = 13.49;
-  final static Double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
 
   Boolean moveIntake = true;
   // Gyroscope Global
@@ -629,6 +629,7 @@ Object[][] autoRocketHatchRightUpper = {
     intakeLift = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
+    
 
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
@@ -844,12 +845,10 @@ Object[][] autoRocketHatchRightUpper = {
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
         fire();
       }
-
       // If EJECTBALL is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
         fire();
       }
-
       // If the VISION movement is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
         if (true) {
@@ -937,11 +936,11 @@ Object[][] autoRocketHatchRightUpper = {
       }
     }
     if (lBumperOp) {
-      intake.set(1);
+      intakeMotorsUp();
     } else if (rBumperOp) {
-      intake.set(-1);
+      intakeMotorsDown();
     } else {
-      intake.set(0);
+      intakeMotorsReset();
     }
     if (startOp) {
       elevatorEncoder.reset();
@@ -1223,6 +1222,21 @@ Object[][] autoRocketHatchRightUpper = {
       }
     }
 
+  }
+
+  public void intakeMotorsUp() {
+    intake.set(1);
+    intakeLift.set(1);
+  }
+
+  public void intakeMotorsDown() {
+    intake.set(-1);
+    intakeLift.set(-1);
+  }
+
+  public void intakeMotorsReset() {
+    intake.set(0);
+    intakeLift.set(0);
   }
 
 }
