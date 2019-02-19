@@ -395,6 +395,62 @@ public class Robot extends TimedRobot {
     { AutoMovement.EJECTHATCH },
     // Movement type, Distance, Speed
 };
+
+//Automode 5 (Left Rocket Cargo)
+Object[][] autoRockeBallLeft = {
+  {AutoMovement.STRAIGHT, 181, 1},
+  {AutoMovement.TURN, -90, 0.5},
+  {AutoMovement.STRAIGHT, 50, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.EJECTBALL},
+  {AutoMovement.EJECTHATCH},
+  {AutoMovement.TURN, 90, 0.5},
+  {AutoMovement.STRAIGHT, -130, 1},
+  {AutoMovement.TURN, -39.5, 0.5},
+  {AutoMovement.STRAIGHT, -110, 1}
+};
+
+//Automode 6 (Right Rocket Cargo)
+Object[][] autoRocketBallRight = {
+  {AutoMovement.STRAIGHT, 181, 1},
+  {AutoMovement.TURN, 90, 0.5},
+  {AutoMovement.STRAIGHT, 50, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.EJECTBALL},
+  {AutoMovement.EJECTHATCH},
+  {AutoMovement.TURN, -90, 0.5},
+  {AutoMovement.STRAIGHT, -130, 1},
+  {AutoMovement.TURN, 39.5, 0.5},
+  {AutoMovement.STRAIGHT, -110, 1}
+};
+
+//Automode 7 (Left Rocket Hatch) Starting position is on line seperating higher levels
+Object[][] autoRocketHatchLeft = {
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.TURN, -39.2, 0.5},
+  {AutoMovement.STRAIGHT, 150, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.EJECTBALL},
+  {AutoMovement.EJECTHATCH},
+  {AutoMovement.TURN, 45, 0.5},
+  {AutoMovement.STRAIGHT, -115, 1},
+  {AutoMovement.TURN, -43.3, 0.5},
+  {AutoMovement.STRAIGHT, -100, 1}
+};
+
+//Automode 8 (Right Rocket Hatch)
+Object[][] autoRocketHatchRight = {
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.TURN, 39.2, 0.5},
+  {AutoMovement.STRAIGHT, 150, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.EJECTBALL},
+  {AutoMovement.EJECTHATCH},
+  {AutoMovement.TURN, -45, 0.5},
+  {AutoMovement.STRAIGHT, -115, 1},
+  {AutoMovement.TURN, 43.3, 0.5},
+  {AutoMovement.STRAIGHT, -100, 1}
+};
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
   // Indicates what step of auto the robot is on
