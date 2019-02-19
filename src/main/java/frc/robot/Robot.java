@@ -493,6 +493,7 @@ Object[][] autoRocketHatchRight = {
     intakeLift = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
+    
 
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
@@ -654,12 +655,10 @@ Object[][] autoRocketHatchRight = {
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
         fire();
       }
-
       // If EJECTBALL is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
         fire();
       }
-
       // If the VISION movement is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
         if (true) {
@@ -747,11 +746,11 @@ Object[][] autoRocketHatchRight = {
       }
     }
     if (lBumperOp) {
-      intake.set(1);
+      intakeMotorsUp();
     } else if (rBumperOp) {
-      intake.set(-1);
+      intakeMotorsDown();
     } else {
-      intake.set(0);
+      intakeMotorsReset();
     }
     if (startOp) {
       elevatorEncoder.reset();
@@ -1026,6 +1025,21 @@ Object[][] autoRocketHatchRight = {
         servoClose();
       }
     }
+  }
+
+  public void intakeMotorsUp() {
+    intake.set(1);
+    intakeLift.set(1);
+  }
+
+  public void intakeMotorsDown() {
+    intake.set(-1);
+    intakeLift.set(-1);
+  }
+
+  public void intakeMotorsReset() {
+    intake.set(0);
+    intakeLift.set(0);
   }
 
 }
