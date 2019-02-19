@@ -370,7 +370,8 @@ public class Robot extends TimedRobot {
   };
 
   /*
-   * =================================== AUTOMODES FOR FRONT CARGOSHIP HOLDS
+   * =================================== 
+   * AUTOMODES FOR FRONT CARGOSHIP HOLDS
    * ===================================
    */
 
@@ -651,12 +652,12 @@ Object[][] autoRocketHatchRight = {
       }
       // If EJECTHATCH is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
-        // TODO: Figure out how to drop the hatch
+        fire();
       }
 
       // If EJECTBALL is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
-        // TODO: Figure out how to drop the ball
+        fire();
       }
 
       // If the VISION movement is selected
