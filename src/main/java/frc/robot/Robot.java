@@ -629,7 +629,6 @@ Object[][] autoRocketHatchRightUpper = {
     intakeLift = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
-    
 
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
@@ -845,10 +844,12 @@ Object[][] autoRocketHatchRightUpper = {
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
         fire();
       }
+
       // If EJECTBALL is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
         fire();
       }
+
       // If the VISION movement is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
         if (true) {
