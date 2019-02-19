@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
   Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeLiftEncoder;
   // Number of counts per inch, fix elevator value
   final static double ENCODER_COUNTS_PER_INCH = 13.49;
-  final static Double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
 
   Boolean moveIntake = true;
   // Gyroscope Global
