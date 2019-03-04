@@ -97,6 +97,9 @@ public class Robot extends TimedRobot {
   boolean specialPressed = false;
   boolean operatorOverride;
 
+  // Elevator Movement
+  double startElevatorTime = 0;
+
   // Creates the network tables object
   NetworkTableInstance inst;
   // A specific table in network tables
@@ -717,6 +720,12 @@ Object[][] autoRocketHatchRightUpper = {
     if (doFire) {
       fire();
     }
+
+    if (startElevatorTime + 200 < System.currentTimeMillis() && startElevatorTime > 1) {
+      if (elevatorMovement(ElevatorHeight.HATCH_ONE)) {
+        startElevatorTime = 0;
+      }
+    }
   }
 
   /**
@@ -1204,6 +1213,7 @@ Object[][] autoRocketHatchRightUpper = {
   public boolean liftFire(ElevatorHeight level) {
     if (elevatorMovement(level)) {
       doFire = true;
+      startElevatorTime = System.currentTimeMillis();
       return true;
     } else {
       return false;
