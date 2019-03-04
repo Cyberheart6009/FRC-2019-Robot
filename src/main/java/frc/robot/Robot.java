@@ -94,6 +94,8 @@ public class Robot extends TimedRobot {
   double buttonTime = 0;
   boolean startButtonTime = true;
   boolean pressed = false;
+  boolean specialPressed = false;
+  boolean operatorOverride;
 
   // Creates the network tables object
   NetworkTableInstance inst;
@@ -626,7 +628,6 @@ Object[][] autoRocketHatchRightUpper = {
     intake = new Spark(4);
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
-    // = new Spark(9);
     lemmeDie = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
@@ -704,7 +705,12 @@ Object[][] autoRocketHatchRightUpper = {
     if (pressed) {
       if (buttonTime + 200 < System.currentTimeMillis()) {
         pressed = false;
+      }
+    }
 
+    if (specialPressed) {
+      if (buttonTime + 200 < System.currentTimeMillis()) {
+        pressed = false;
       }
     }
 
@@ -862,6 +868,7 @@ Object[][] autoRocketHatchRightUpper = {
   @Override
   public void teleopInit() {
     super.teleopInit();
+    operatorOverride = false;
   }
 
   /**
@@ -901,6 +908,7 @@ Object[][] autoRocketHatchRightUpper = {
       invertControls = 1;
     }
 
+    // OPERATOR CONTROLS BEGINS
     aButtonOp = operator.getRawButton(1);
     bButtonOp = operator.getRawButton(2);
     xButtonOp = operator.getRawButton(3);
@@ -911,17 +919,65 @@ Object[][] autoRocketHatchRightUpper = {
 		startOp = operator.getRawButton(8);
 		leftThumbPushOp = operator.getRawButton(9);
     rightThumbPushOp = operator.getRawButton(10);
-    
+
+    if (select) {
+      if (!specialPressed) {
+        operatorOverride = true;
+        specialPressed = true;
+        buttonTime = System.currentTimeMillis();
+      }
+    }
+
+    if (operatorOverride) {
+      elevator.set(operator.getY());
+      if (xButtonOp) {
+        doFire = true;
+      }
+    }
+
     lemmeDie.set(-operator.getRawAxis(5));
 
-    //System.out.println(lemmeDie.get());
+    if (operator.getRawAxis(2) > 0.1 || operator.getRawAxis(3) > 0.1) {
+      intake.set(operator.getRawAxis(2));
+      intake.set(-operator.getRawAxis(3));
+    }
 
-    /*if ((elevatorLimitSwitch && operator.getY() < 0) || !elevatorLimitSwitch) {
-      elevator.set(operator.getY());
-    }*/
+    if (rBumperOp) {
+      if (!specialPressed) {
+        switchMode();
+        specialPressed = true;
+        buttonTime = System.currentTimeMillis();
+      }
+    }
 
+    if (!pressed) {
+      if (currentRobotMode == RobotMode.CARGO) {
+        if (aButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_ONE);
+        }
+        if (bButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_TWO);
+        }
+        if (yButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_THREE);
+        }
+      } else {
+        if (aButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_ONE);
+        }
+        if (bButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_TWO);
+        }
+        if (yButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_THREE);
+        }
+      }
+      pressed = true;
+      buttonTime = System.currentTimeMillis();
+    }
 
-    elevator.set(operator.getY());
+    // The old control scheme
+    /**
     if (aButtonOp) {
       doFire = true;
     }
@@ -944,13 +1000,7 @@ Object[][] autoRocketHatchRightUpper = {
     } else {
       intake.set(0);
     }
-    if (startOp) {
-      elevatorEncoder.reset();
-    }
-    if (selectOp) {
-      leftEncoder.reset();
-      rightEncoder.reset();
-    }
+    */
 
     // This block of code is for testing the servos
     /*
@@ -1116,7 +1166,7 @@ Object[][] autoRocketHatchRightUpper = {
     return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
   }
 
-  public void elevatorMovement(ElevatorHeight level) {
+  public boolean elevatorMovement(ElevatorHeight level) {
     double firstHeight = 0;
     switch (level) {
       case HATCH_ONE:
@@ -1143,6 +1193,21 @@ Object[][] autoRocketHatchRightUpper = {
     double x = getElevatorHeight();
     double domain = elevatorHeight;
     elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
+
+    if (x >= elevatorHeight) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean liftFire(ElevatorHeight level) {
+    if (elevatorMovement(level)) {
+      doFire = true;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public void servoClose() {
