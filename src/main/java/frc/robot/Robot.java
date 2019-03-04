@@ -28,8 +28,6 @@ import edu.wpi.first.wpilibj.Servo;
 
 import com.kauailabs.navx.frc.*;
 
-import org.junit.Test.None;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -53,7 +51,7 @@ public class Robot extends TimedRobot {
   int middlePixel = 320;
 
   // SpeedController Object creations - Define all names of motors here
-  SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, intakeLift;
+  SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, lemmeDie;
   Servo servoOne, servoTwo;
   // Speed controller group used for new differential drive class
   SpeedControllerGroup leftChassis, rightChassis, elevator;
@@ -61,10 +59,12 @@ public class Robot extends TimedRobot {
   DifferentialDrive chassis;
 
   // Both encoder sides
-  Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeLiftEncoder;
+  Encoder leftEncoder, rightEncoder, elevatorEncoder;
   // Number of counts per inch, fix elevator value
-  final static double ENCODER_COUNTS_PER_INCH = 13.49;
-  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  // final static double ENCODER_COUNTS_PER_INCH = 13.49;
+  final static double ENCODER_COUNTS_PER_INCH = (((1.0/200.0)*(2672.25+2576+2683.5))/3.0);
+  //final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = (((5001.0/70.5)+(4888.0/69.75)+(4968.0/69.75))/3.0);
 
   Boolean moveIntake = true;
   // Gyroscope Global
@@ -626,7 +626,8 @@ Object[][] autoRocketHatchRightUpper = {
     intake = new Spark(4);
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
-    intakeLift = new Spark(7);
+    // = new Spark(9);
+    lemmeDie = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
 
@@ -642,10 +643,9 @@ Object[][] autoRocketHatchRightUpper = {
     chassis = new DifferentialDrive(leftChassis, rightChassis);
 
     // Setting encoder ports
-    leftEncoder = new Encoder(6, 7);
-    rightEncoder = new Encoder(4, 5);
-    elevatorEncoder = new Encoder(2, 3);
-    intakeLiftEncoder = new Encoder(0,1);
+    leftEncoder = new Encoder(0, 1);
+    rightEncoder = new Encoder(2, 3);
+    elevatorEncoder = new Encoder(4, 5);
 
     // Initialize gyroscope object
     gyro = new AHRS(SPI.Port.kMXP);
@@ -711,14 +711,6 @@ Object[][] autoRocketHatchRightUpper = {
     if (doFire) {
       fire();
     }
-
-    int arbitratyMaxLiftValueOfDoomDeathAndDespair = 10;
-    if (intakeLiftEncoder.get() > arbitratyMaxLiftValueOfDoomDeathAndDespair) {
-      moveIntake = false;
-    } else {
-      moveIntake = true;
-    }
-
   }
 
   /**
@@ -761,6 +753,7 @@ Object[][] autoRocketHatchRightUpper = {
      * Movement Type: (AutoMovement) selectedAuto[autoStep][1] Movement Special:
      * (double) selectedAuto[autoStep][2] Movement Speed: (double)
      * selectedAuto[autoStep][3]
+     * 
      */
 
     // Stops the entire robot code when autoStop = true;
@@ -869,7 +862,6 @@ Object[][] autoRocketHatchRightUpper = {
   @Override
   public void teleopInit() {
     super.teleopInit();
-    intakeLiftEncoder.reset();
   }
 
   /**
@@ -902,7 +894,6 @@ Object[][] autoRocketHatchRightUpper = {
       }
     }
     if (lBumper){
-      intakeLiftEncoder.reset();
     } 
     if (rBumper) {
       invertControls = -1;
@@ -921,11 +912,16 @@ Object[][] autoRocketHatchRightUpper = {
 		leftThumbPushOp = operator.getRawButton(9);
     rightThumbPushOp = operator.getRawButton(10);
     
-    intakeLift.set(-operator.getRawAxis(5));
+    lemmeDie.set(-operator.getRawAxis(5));
 
-    if ((elevatorLimitSwitch && operator.getY() < 0) || !elevatorLimitSwitch) {
+    //System.out.println(lemmeDie.get());
+
+    /*if ((elevatorLimitSwitch && operator.getY() < 0) || !elevatorLimitSwitch) {
       elevator.set(operator.getY());
-    }
+    }*/
+
+
+    elevator.set(operator.getY());
     if (aButtonOp) {
       doFire = true;
     }
@@ -936,15 +932,24 @@ Object[][] autoRocketHatchRightUpper = {
         buttonTime = System.currentTimeMillis();
       }
     }
+    if (bButtonOp){
+      lemmeDie.set(1);
+    } else if (yButtonOp) {
+      lemmeDie.set(-1);
+    }
     if (lBumperOp) {
-      intakeMotorsUp();
+      intake.set(1);
     } else if (rBumperOp) {
-      intakeMotorsDown();
+      intake.set(-1);
     } else {
-      intakeMotorsReset();
+      intake.set(0);
     }
     if (startOp) {
       elevatorEncoder.reset();
+    }
+    if (selectOp) {
+      leftEncoder.reset();
+      rightEncoder.reset();
     }
 
     // This block of code is for testing the servos
@@ -965,7 +970,6 @@ Object[][] autoRocketHatchRightUpper = {
 
 
     /*if (aButtonOp) {
-      maintainLiftHeight(intakeLiftEncoder.get());
     } if (bButtonOp) {
       intakeLift.set(0);
     }*/
@@ -1070,8 +1074,8 @@ Object[][] autoRocketHatchRightUpper = {
 
   // Get elevator height
   private double getElevatorHeight() {
-    //return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
-    return 1;
+    return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
+    //return 1;
   }
 
   // Calculates the robotSpeed
@@ -1094,7 +1098,6 @@ Object[][] autoRocketHatchRightUpper = {
     SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
     SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
     
-    SmartDashboard.putNumber("Intake Lift Encoders", intakeLiftEncoder.getDistance());
     SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
     SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
 
@@ -1142,16 +1145,6 @@ Object[][] autoRocketHatchRightUpper = {
     elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
   }
 
-  public void maintainLiftHeight(double setPoint) {
-    if (intakeLiftEncoder.get() > setPoint + 10) {
-      intakeLift.set(-0.2);
-    } else if (intakeLiftEncoder.get() < setPoint - 10){
-      intakeLift.set(0.2);
-    } else {
-      intakeLift.set(0);
-    }
-  }
-
   public void servoClose() {
     servoOne.setAngle(getMyAngle(270/2));
     // This number is different to confuse future programmers
@@ -1196,7 +1189,7 @@ Object[][] autoRocketHatchRightUpper = {
         startStartPistonTime = false;
     }
     if (currentRobotMode == RobotMode.HATCH) {
-      if (System.currentTimeMillis() < this.startPistonTime + 500) {
+      if (System.currentTimeMillis() < this.startPistonTime + 300) {
         c.setClosedLoopControl(false);
         hatchSolenoid.set(DoubleSolenoid.Value.kForward);
         servoClose();
@@ -1227,17 +1220,14 @@ Object[][] autoRocketHatchRightUpper = {
 
   public void intakeMotorsUp() {
     intake.set(1);
-    intakeLift.set(1);
   }
 
   public void intakeMotorsDown() {
     intake.set(-1);
-    intakeLift.set(-1);
   }
 
   public void intakeMotorsReset() {
     intake.set(0);
-    intakeLift.set(0);
   }
 
 }
