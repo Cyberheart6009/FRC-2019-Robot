@@ -631,6 +631,10 @@ Object[][] autoRocketHatchRightUpper = {
   // TODO: Modify these temp variables
   Boolean elevatorLimitSwitch = false;
 
+  boolean setStartAngle = true;
+  double startAngle;
+
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -809,33 +813,30 @@ Object[][] autoRocketHatchRightUpper = {
           }
           break;
         case TURN:
-          if (getAngle() < ((double) selectedAuto[autoStep][1] - 10) || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
-            chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
+          if (setStartAngle) {
+            startAngle = getAngle();
+            setStartAngle = false;
+          }
+          if (getAngle() - startAngle < ((double) selectedAuto[autoStep][1] - 10)) {
+            leftBack.set((double) selectedAuto[autoStep][2]);
+            leftFront.set((double) selectedAuto[autoStep][2]);
+            rightBack.set(-(double) selectedAuto[autoStep][2]);
+            rightFront.set(-(double) selectedAuto[autoStep][2]);
+          } else if (getAngle() - startAngle > ((double) selectedAuto[autoStep][1] + 10)) {
+            leftBack.set(-(double) selectedAuto[autoStep][2]);
+            leftFront.set(-(double) selectedAuto[autoStep][2]);
+            rightBack.set((double) selectedAuto[autoStep][2]);
+            rightFront.set((double) selectedAuto[autoStep][2]);
           } else { // Turn Complete
+            setStartAngle = true;
             resetEncoders();
             autoStep++;
           }
           break;
         case ELEVATOR:
-          switch ((ElevatorHeight) selectedAuto[autoStep][1]) {
-            case HATCH_ONE:
-              break;
-            case HATCH_TWO:
-              break;
-            case HATCH_THREE:
-              break;
-            case BALL_ONE:
-              break;
-            case BALL_TWO:
-              break;
-            case BALL_THREE:
-              break;
-            default:
-              break;
-        }
-        case EJECTBALL:
-          break;
-        case EJECTHATCH:
+          elevatorMovement((ElevatorHeight) selectedAuto[autoStep][1]);
+        case EJECT:
+          doFire = true;
           break;
         case VISION:
           if (true) {
