@@ -153,7 +153,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchLeft = {
@@ -179,7 +179,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
       // Maybe use ultrasonic distance- sensors
   };
 
@@ -206,7 +206,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
 
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
@@ -235,7 +235,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
   };
   Object[][] sideShip2HatchRight = {
       { AutoMovement.MODE, RobotMode.HATCH },
@@ -260,7 +260,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
   };
 
   Object[][] sideShip3HatchRight = {
@@ -286,7 +286,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
       { AutoMovement.VISION },
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
   };
 /* DEPRECATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
   Object[][] sideShip1BallLeft = {
