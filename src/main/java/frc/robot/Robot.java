@@ -38,6 +38,23 @@ import com.kauailabs.navx.frc.*;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+
+  private static final String leftShipShort = "Left Ship Short";
+  private static final String leftShipMiddle = "Left Ship Middle";
+  private static final String leftShipLong = "Left Ship Long";
+
+  private static final String rightShipShort = "Right Ship Short";
+  private static final String rightShipMiddle = "Right Ship Middle";
+  private static final String rightShipLong = "Right Ship Long";
+
+  private static final String leftRocketLow = "Left Rocket Low";
+  private static final String leftRocketMedium = "Left Rocket Medium";
+  private static final String leftRocketHigh = "Left Rocket High";
+
+  private static final String rightRocketLow = "Right Rocket Low";
+  private static final String rightRocketMedium = "Left Rocket Medium";
+  private static final String rightRocketHigh = "Left Rocket High";
+
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -663,7 +680,26 @@ Object[][] autoRocketHatchRightUpper = {
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
+
+    m_chooser.addOption("Left Ship Short", leftShipShort);
+    m_chooser.addOption("Left Ship Middle", leftShipMiddle);
+    m_chooser.addOption("Left Ship Long", leftShipLong);
+
+    m_chooser.addOption("Right Ship Short", rightShipShort);
+    m_chooser.addOption("Right Ship Middle", rightShipMiddle);
+    m_chooser.addOption("Right Ship Long", rightShipLong);
+
+    m_chooser.addOption("Left Rocket Low", leftRocketLow);
+    m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
+    m_chooser.addOption("Left Rocket Long", leftRocketHigh);
+
+    m_chooser.addOption("Right Rocket Low", rightRocketLow);
+    m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
+    m_chooser.addOption("Right Rocket Long", rightRocketHigh);
+
+    
     SmartDashboard.putData("Auto choices", m_chooser);
+
 
     // Start ultrasonic sensor
     // ultrasonic = new AnalogInput(0);
