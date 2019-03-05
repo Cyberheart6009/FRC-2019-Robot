@@ -28,8 +28,6 @@ import edu.wpi.first.wpilibj.Servo;
 
 import com.kauailabs.navx.frc.*;
 
-import org.junit.Test.None;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -53,7 +51,7 @@ public class Robot extends TimedRobot {
   int middlePixel = 320;
 
   // SpeedController Object creations - Define all names of motors here
-  SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, intakeLift;
+  SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, lemmeDie;
   Servo servoOne, servoTwo;
   // Speed controller group used for new differential drive class
   SpeedControllerGroup leftChassis, rightChassis, elevator;
@@ -61,10 +59,12 @@ public class Robot extends TimedRobot {
   DifferentialDrive chassis;
 
   // Both encoder sides
-  Encoder leftEncoder, rightEncoder, elevatorEncoder, intakeLiftEncoder;
+  Encoder leftEncoder, rightEncoder, elevatorEncoder;
   // Number of counts per inch, fix elevator value
-  final static double ENCODER_COUNTS_PER_INCH = 13.49;
-  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  // final static double ENCODER_COUNTS_PER_INCH = 13.49;
+  final static double ENCODER_COUNTS_PER_INCH = (((1.0/200.0)*(2672.25+2576+2683.5))/3.0);
+  //final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = 182.13;
+  final static double ELEVATOR_ENCODER_COUNTS_PER_INCH = (((5001.0/70.5)+(4888.0/69.75)+(4968.0/69.75))/3.0);
 
   Boolean moveIntake = true;
   // Gyroscope Global
@@ -94,6 +94,11 @@ public class Robot extends TimedRobot {
   double buttonTime = 0;
   boolean startButtonTime = true;
   boolean pressed = false;
+  boolean specialPressed = false;
+  boolean operatorOverride;
+
+  // Elevator Movement
+  double startElevatorTime = 0;
 
   // Creates the network tables object
   NetworkTableInstance inst;
@@ -104,7 +109,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH, ELEVATOR
+    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH, ELEVATOR, INTAKE, MODE
   }
 
   Object[][] autoTemplate = {
@@ -125,6 +130,7 @@ public class Robot extends TimedRobot {
   // station
 
   Object[][] sideShip1HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
       // Movement type, Rotation, Speed
@@ -132,11 +138,11 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Elevator
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       // Hatch
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -68, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -90, 0.5 },
       // Movement type, Distance, Speed
@@ -147,6 +153,7 @@ public class Robot extends TimedRobot {
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 236, 1 },
       // Movement type, Rotation, Speed
@@ -154,7 +161,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -169,6 +176,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip3HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 258, 1 },
       // Movement type, Rotation, Speed
@@ -176,7 +184,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -191,6 +199,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip1HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
       // Movement type, Rotation, Speed
@@ -198,7 +207,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -212,6 +221,7 @@ public class Robot extends TimedRobot {
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 236, 1 },
       // Movement type, Rotation, Speed
@@ -219,7 +229,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -234,6 +244,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip3HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 258, 1 },
       // Movement type, Rotation, Speed
@@ -241,7 +252,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -254,7 +265,7 @@ public class Robot extends TimedRobot {
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
   };
-
+/* DEPRECATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
   Object[][] sideShip1BallLeft = {
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
@@ -263,7 +274,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -284,7 +295,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -306,7 +317,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -328,7 +339,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -349,7 +360,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -371,7 +382,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -384,13 +395,14 @@ public class Robot extends TimedRobot {
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
   };
+  */
 
   /*
    * =================================== 
    * AUTOMODES FOR FRONT CARGOSHIP HOLDS
    * ===================================
    */
-
+  /* DEPRECATED AUTOMODES (AUTOMODES DROPPING GAMEPIECE ON FRONT HOLDS IN CARGO SHIP)
   Object[][] frontShipBall = {
       // Movement type, Distance, Speed
       // Not driving full distance because vision takes over
@@ -398,7 +410,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
   };
@@ -410,18 +422,21 @@ public class Robot extends TimedRobot {
     // Activate Vision
     { AutoMovement.VISION },
     // Ball
-    { AutoMovement.ELEVATOR, "BALL_ONE"},
+    { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
     { AutoMovement.EJECTHATCH },
     // Movement type, Distance, Speed
 };
+*/
 
+/* DEPCRATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
 //Automode 5 (Left Rocket Cargo)
 Object[][] autoRockeBallLeft = {
   {AutoMovement.STRAIGHT, 181, 1},
   {AutoMovement.TURN, 90, -0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
-  { AutoMovement.ELEVATOR, "BALL_ONE"},
+  {AutoMovement.ELEVATOR, "BALL_ONE"},
+  { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, 0.5},
@@ -436,7 +451,7 @@ Object[][] autoRocketBallRight = {
   {AutoMovement.TURN, 90, 0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
-  { AutoMovement.ELEVATOR, "BALL_ONE"},
+  { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, -0.5},
@@ -449,10 +464,15 @@ Object[][] autoRocketBallRight = {
 Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, 0.5},
+*/
+//Automode 7 (Left Lower Rocket Hatch) Starting position is on line seperating higher levels
+Object[][] autoRocketHatchLeftLower = {
+  { AutoMovement.MODE, RobotMode.HATCH },
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
-  
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -466,17 +486,18 @@ Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 8 (Left Middle Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftMiddle = {
+  {AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -490,17 +511,18 @@ Object[][] autoRocketHatchLeftMiddle = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 9 (Left Upper Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftUpper = {
+  {AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -514,17 +536,18 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 10 (Right Lower Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightLower = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -538,17 +561,18 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 11 (Right Middle Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightMiddle = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -562,17 +586,18 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 12 (Right Upper Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightUpper = {
+  {AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -586,7 +611,7 @@ Object[][] autoRocketHatchRightUpper = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH}
 };
   // Dictates the current auto that is selected
@@ -627,7 +652,7 @@ Object[][] autoRocketHatchRightUpper = {
     intake = new Spark(4);
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
-    intakeLift = new Spark(7);
+    lemmeDie = new Spark(7);
     servoOne = new Servo(8);
     servoTwo = new Servo(9);
 
@@ -643,10 +668,9 @@ Object[][] autoRocketHatchRightUpper = {
     chassis = new DifferentialDrive(leftChassis, rightChassis);
 
     // Setting encoder ports
-    leftEncoder = new Encoder(6, 7);
-    rightEncoder = new Encoder(4, 5);
-    elevatorEncoder = new Encoder(2, 3);
-    intakeLiftEncoder = new Encoder(0,1);
+    leftEncoder = new Encoder(0, 1);
+    rightEncoder = new Encoder(2, 3);
+    elevatorEncoder = new Encoder(4, 5);
 
     // Initialize gyroscope object
     gyro = new AHRS(SPI.Port.kMXP);
@@ -705,7 +729,12 @@ Object[][] autoRocketHatchRightUpper = {
     if (pressed) {
       if (buttonTime + 200 < System.currentTimeMillis()) {
         pressed = false;
+      }
+    }
 
+    if (specialPressed) {
+      if (buttonTime + 200 < System.currentTimeMillis()) {
+        pressed = false;
       }
     }
 
@@ -713,13 +742,11 @@ Object[][] autoRocketHatchRightUpper = {
       fire();
     }
 
-    int arbitratyMaxLiftValueOfDoomDeathAndDespair = 10;
-    if (intakeLiftEncoder.get() > arbitratyMaxLiftValueOfDoomDeathAndDespair) {
-      moveIntake = false;
-    } else {
-      moveIntake = true;
+    if (startElevatorTime + 200 < System.currentTimeMillis() && startElevatorTime > 1) {
+      if (elevatorMovement(ElevatorHeight.HATCH_ONE)) {
+        startElevatorTime = 0;
+      }
     }
-
   }
 
   /**
@@ -762,67 +789,62 @@ Object[][] autoRocketHatchRightUpper = {
      * Movement Type: (AutoMovement) selectedAuto[autoStep][1] Movement Special:
      * (double) selectedAuto[autoStep][2] Movement Speed: (double)
      * selectedAuto[autoStep][3]
+     * 
      */
 
     // Stops the entire robot code when autoStop = true;
     if (!autoStop) {
-      // If the STRAIGHT movement is selected
-      if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.STRAIGHT) {
-        if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
-          chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
-        } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
-          chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
-        } else { // Destination Reached
-          resetEncoders();
-          autoStep++;
+      switch ((AutoMovement) selectedAuto[autoStep][0]) {
+        case MODE:
+          currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
+          break;
+        case STRAIGHT:
+          if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
+            chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
+          } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
+            chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
+          } else { // Destination Reached
+            resetEncoders();
+            autoStep++;
+          }
+          break;
+        case TURN:
+          if (getAngle() < ((double) selectedAuto[autoStep][1] - 10) || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
+            chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
+          } else { // Turn Complete
+            resetEncoders();
+            autoStep++;
+          }
+          break;
+        case ELEVATOR:
+          switch ((ElevatorHeight) selectedAuto[autoStep][1]) {
+            case HATCH_ONE:
+              break;
+            case HATCH_TWO:
+              break;
+            case HATCH_THREE:
+              break;
+            case BALL_ONE:
+              break;
+            case BALL_TWO:
+              break;
+            case BALL_THREE:
+              break;
+            default:
+              break;
         }
-      }
-      // If the TURN movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.TURN) {
-        if (getAngle() < ((double) selectedAuto[autoStep][1] - 10)
-            || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
-          chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
-        } else { // Turn Complete
-          resetEncoders();
-          autoStep++;
-        }
-      }
-/*
-      // If ELEVATOR is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_ONE") {
-          elevatorMovement(ElevatorHeight.HATCH_ONE);
-        } else if ((String) selectedAuto[autoStep][1] == "HATCH_TWO"){
-          elevatorMovement(ElevatorHeight.HATCH_TWO);
-        } else if ((String) selectedAuto[autoStep][1] == "HATCH_THREE"){
-          elevatorMovement(ElevatorHeight.HATCH_THREE);
-        } else if ((String) selectedAuto[autoStep][1] == "BAll_ONE"){
-          elevatorMovement(ElevatorHeight.BALL_ONE);
-        } else if ((String) selectedAuto[autoStep][1] == "BALL_TWO") {
-          elevatorMovement(ElevatorHeight.BALL_TWO);
-        } else if ((String) selectedAuto[autoStep][1] == "BAll_THREE") {
-          elevatorMovement(ElevatorHeight.BALL_THREE);
-        }
-      }
-*/
-      // If EJECTHATCH is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
-        fire();
-      }
-
-      // If EJECTBALL is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
-        fire();
-      }
-
-      // If the VISION movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
-        if (true) {
-          cameraControl();
-        } else {
-          // TODO: Add a coninuation section for auto code
-          autoStep++;
-        }
+        case EJECTBALL:
+          break;
+        case EJECTHATCH:
+          break;
+        case VISION:
+          if (true) {
+            cameraControl();
+          } else {
+            // TODO: Add a coninuation section for auto code
+            autoStep++;
+          }
+          break;
       }
     }
 
@@ -834,7 +856,7 @@ Object[][] autoRocketHatchRightUpper = {
   @Override
   public void teleopInit() {
     super.teleopInit();
-    intakeLiftEncoder.reset();
+    operatorOverride = false;
   }
 
   /**
@@ -867,7 +889,6 @@ Object[][] autoRocketHatchRightUpper = {
       }
     }
     if (lBumper){
-      intakeLiftEncoder.reset();
     } 
     if (rBumper) {
       invertControls = -1;
@@ -875,6 +896,7 @@ Object[][] autoRocketHatchRightUpper = {
       invertControls = 1;
     }
 
+    // OPERATOR CONTROLS BEGINS
     aButtonOp = operator.getRawButton(1);
     bButtonOp = operator.getRawButton(2);
     xButtonOp = operator.getRawButton(3);
@@ -885,12 +907,65 @@ Object[][] autoRocketHatchRightUpper = {
 		startOp = operator.getRawButton(8);
 		leftThumbPushOp = operator.getRawButton(9);
     rightThumbPushOp = operator.getRawButton(10);
-    
-    intakeLift.set(-operator.getRawAxis(5));
 
-    if ((elevatorLimitSwitch && operator.getY() < 0) || !elevatorLimitSwitch) {
-      elevator.set(operator.getY());
+    if (select) {
+      if (!specialPressed) {
+        operatorOverride = true;
+        specialPressed = true;
+        buttonTime = System.currentTimeMillis();
+      }
     }
+
+    if (operatorOverride) {
+      elevator.set(operator.getY());
+      if (xButtonOp) {
+        doFire = true;
+      }
+    }
+
+    lemmeDie.set(-operator.getRawAxis(5));
+
+    if (operator.getRawAxis(2) > 0.1 || operator.getRawAxis(3) > 0.1) {
+      intake.set(operator.getRawAxis(2));
+      intake.set(-operator.getRawAxis(3));
+    }
+
+    if (rBumperOp) {
+      if (!specialPressed) {
+        switchMode();
+        specialPressed = true;
+        buttonTime = System.currentTimeMillis();
+      }
+    }
+
+    if (!pressed) {
+      if (currentRobotMode == RobotMode.CARGO) {
+        if (aButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_ONE);
+        }
+        if (bButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_TWO);
+        }
+        if (yButtonOp) {
+          elevatorMovement(ElevatorHeight.BALL_THREE);
+        }
+      } else {
+        if (aButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_ONE);
+        }
+        if (bButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_TWO);
+        }
+        if (yButtonOp) {
+          elevatorMovement(ElevatorHeight.HATCH_THREE);
+        }
+      }
+      pressed = true;
+      buttonTime = System.currentTimeMillis();
+    }
+
+    // The old control scheme
+    /**
     if (aButtonOp) {
       doFire = true;
     }
@@ -901,16 +976,19 @@ Object[][] autoRocketHatchRightUpper = {
         buttonTime = System.currentTimeMillis();
       }
     }
+    if (bButtonOp){
+      lemmeDie.set(1);
+    } else if (yButtonOp) {
+      lemmeDie.set(-1);
+    }
     if (lBumperOp) {
-      intakeMotorsUp();
+      intake.set(1);
     } else if (rBumperOp) {
-      intakeMotorsDown();
+      intake.set(-1);
     } else {
-      intakeMotorsReset();
+      intake.set(0);
     }
-    if (startOp) {
-      elevatorEncoder.reset();
-    }
+    */
 
     // This block of code is for testing the servos
     /*
@@ -930,7 +1008,6 @@ Object[][] autoRocketHatchRightUpper = {
 
 
     /*if (aButtonOp) {
-      maintainLiftHeight(intakeLiftEncoder.get());
     } if (bButtonOp) {
       intakeLift.set(0);
     }*/
@@ -1035,8 +1112,8 @@ Object[][] autoRocketHatchRightUpper = {
 
   // Get elevator height
   private double getElevatorHeight() {
-    //return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
-    return 1;
+    return (double) (elevatorEncoder.get() / ELEVATOR_ENCODER_COUNTS_PER_INCH);
+    //return 1;
   }
 
   // Calculates the robotSpeed
@@ -1059,7 +1136,6 @@ Object[][] autoRocketHatchRightUpper = {
     SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
     SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
     
-    SmartDashboard.putNumber("Intake Lift Encoders", intakeLiftEncoder.getDistance());
     SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
     SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
 
@@ -1080,7 +1156,7 @@ Object[][] autoRocketHatchRightUpper = {
     return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
   }
 
-  public void elevatorMovement(ElevatorHeight level) {
+  public boolean elevatorMovement(ElevatorHeight level) {
     double firstHeight = 0;
     switch (level) {
       case HATCH_ONE:
@@ -1107,15 +1183,21 @@ Object[][] autoRocketHatchRightUpper = {
     double x = getElevatorHeight();
     double domain = elevatorHeight;
     elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
+
+    if (x >= elevatorHeight) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  public void maintainLiftHeight(double setPoint) {
-    if (intakeLiftEncoder.get() > setPoint + 10) {
-      intakeLift.set(-0.2);
-    } else if (intakeLiftEncoder.get() < setPoint - 10){
-      intakeLift.set(0.2);
+  public boolean liftFire(ElevatorHeight level) {
+    if (elevatorMovement(level)) {
+      doFire = true;
+      startElevatorTime = System.currentTimeMillis();
+      return true;
     } else {
-      intakeLift.set(0);
+      return false;
     }
   }
 
@@ -1163,7 +1245,7 @@ Object[][] autoRocketHatchRightUpper = {
         startStartPistonTime = false;
     }
     if (currentRobotMode == RobotMode.HATCH) {
-      if (System.currentTimeMillis() < this.startPistonTime + 500) {
+      if (System.currentTimeMillis() < this.startPistonTime + 300) {
         c.setClosedLoopControl(false);
         hatchSolenoid.set(DoubleSolenoid.Value.kForward);
         servoClose();
@@ -1191,20 +1273,4 @@ Object[][] autoRocketHatchRightUpper = {
     }
 
   }
-
-  public void intakeMotorsUp() {
-    intake.set(1);
-    intakeLift.set(1);
-  }
-
-  public void intakeMotorsDown() {
-    intake.set(-1);
-    intakeLift.set(-1);
-  }
-
-  public void intakeMotorsReset() {
-    intake.set(0);
-    intakeLift.set(0);
-  }
-
 }
