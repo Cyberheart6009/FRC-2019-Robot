@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH, ELEVATOR, INTAKE, MODE
+    STRAIGHT, TURN, VISION, EJECT, ELEVATOR, INTAKE, MODE
   }
 
   Object[][] autoTemplate = {
@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
       // Elevator
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       // Hatch
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -68, 1 },
       // Movement type, Rotation, Speed
@@ -162,7 +162,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
       // Movement type, Rotation, Speed
@@ -185,7 +185,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
       // Movement type, Rotation, Speed
@@ -208,7 +208,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
       // Movement type, Rotation, Speed
@@ -230,7 +230,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT},
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
       // Movement type, Rotation, Speed
@@ -253,7 +253,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECTHATCH },
+      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
       // Movement type, Rotation, Speed
@@ -423,7 +423,7 @@ public class Robot extends TimedRobot {
     { AutoMovement.VISION },
     // Ball
     { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
-    { AutoMovement.EJECTHATCH },
+    { AutoMovement.EJECT },
     // Movement type, Distance, Speed
 };
 */
@@ -467,19 +467,27 @@ Object[][] autoRocketHatchLeftLower = {
 */
 //Automode 7 (Left Lower Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchLeftLower = {
-  { AutoMovement.MODE, RobotMode.HATCH },
+  {AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 34, 1},
   {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-  {AutoMovement.EJECTHATCH},
-
+  {AutoMovement.EJECT},
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, -0.5},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
+  {AutoMovement.STRAIGHT, 180, 1},
+  {AutoMovement.VISION},
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, 0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO}, 
+  {AutoMovement.EJECT},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}
+};
+/* Other Side Lower Hatch
   {AutoMovement.STRAIGHT, 94, -1},
   {AutoMovement.TURN, 20.5, -0.5},
   {AutoMovement.STRAIGHT, 211, -1},
@@ -487,8 +495,9 @@ Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-  {AutoMovement.EJECTHATCH}
-};
+  {AutoMovement.EJECT}
+*/
+
 
 //Automode 8 (Left Middle Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftMiddle = {
@@ -498,21 +507,18 @@ Object[][] autoRocketHatchLeftMiddle = {
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
-  {AutoMovement.EJECTHATCH},
-
+  {AutoMovement.EJECT},
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, -0.5},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
-  {AutoMovement.STRAIGHT, 94, -1},
-  {AutoMovement.TURN, 20.5, -0.5},
-  {AutoMovement.STRAIGHT, 211, -1},
-  {AutoMovement.TURN, 32, 0.5},
-  {AutoMovement.STRAIGHT, 60, 1},
+  {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
-  {AutoMovement.EJECTHATCH}
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, 0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}, 
+  {AutoMovement.EJECT}
 };
 
 //Automode 9 (Left Upper Rocket Hatch) Starting position is on edge before ramp
@@ -523,21 +529,18 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
-  {AutoMovement.EJECTHATCH},
-
+  {AutoMovement.EJECT},
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, -0.5},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
-  {AutoMovement.STRAIGHT, 94, -1},
-  {AutoMovement.TURN, 20.5, -0.5},
-  {AutoMovement.STRAIGHT, 211, -1},
-  {AutoMovement.TURN, 32, 0.5},
-  {AutoMovement.STRAIGHT, 60, 1},
+  {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
-  {AutoMovement.EJECTHATCH}
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, 0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}, 
+  {AutoMovement.EJECT}
 };
 
 //Automode 10 (Right Lower Rocket Hatch) Starting position is on edge before ramp
@@ -548,21 +551,21 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-  {AutoMovement.EJECTHATCH},
+  {AutoMovement.EJECT},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, 1},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, -0.5}, 
-  {AutoMovement.STRAIGHT, 94, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
-  {AutoMovement.STRAIGHT, 211, -1},
-  {AutoMovement.TURN, 32, -0.5},
-  {AutoMovement.STRAIGHT, 60, 1}, 
+
+  {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-  {AutoMovement.EJECTHATCH}
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, -0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO}, 
+  {AutoMovement.EJECT},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}
 };
 
 //Automode 11 (Right Middle Rocket Hatch) Starting position is on edge before ramp
@@ -573,21 +576,20 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
-  {AutoMovement.EJECTHATCH},
+  {AutoMovement.EJECT},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, 1},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, -0.5}, 
-  {AutoMovement.STRAIGHT, 94, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
-  {AutoMovement.STRAIGHT, 211, -1},
-  {AutoMovement.TURN, 32, -0.5},
-  {AutoMovement.STRAIGHT, 60, 1}, 
+
+  {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
-  {AutoMovement.EJECTHATCH}
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, -0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}, 
+  {AutoMovement.EJECT}
 };
 
 //Automode 12 (Right Upper Rocket Hatch) Starting position is on edge before ramp
@@ -598,21 +600,20 @@ Object[][] autoRocketHatchRightUpper = {
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
-  {AutoMovement.EJECTHATCH},
+  {AutoMovement.EJECT},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, 1},
-  {AutoMovement.STRAIGHT, 206, 1},
-  {AutoMovement.STRAIGHT, 10, -1},
-  {AutoMovement.TURN, 20.5, -0.5}, 
-  {AutoMovement.STRAIGHT, 94, -1},
-  {AutoMovement.TURN, 20.5, 0.5},
-  {AutoMovement.STRAIGHT, 211, -1},
-  {AutoMovement.TURN, 32, -0.5},
-  {AutoMovement.STRAIGHT, 60, 1}, 
+
+  {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
-  {AutoMovement.EJECTHATCH}
+
+  {AutoMovement.STRAIGHT, 173, -1},
+  {AutoMovement.TURN, 165, -0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE}, 
+  {AutoMovement.EJECT}
 };
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
@@ -833,9 +834,8 @@ Object[][] autoRocketHatchRightUpper = {
             default:
               break;
         }
-        case EJECTBALL:
-          break;
-        case EJECTHATCH:
+        case EJECT:
+          doFire = true;
           break;
         case VISION:
           if (true) {
