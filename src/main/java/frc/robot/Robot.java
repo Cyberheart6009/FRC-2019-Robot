@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH, ELEVATOR
+    STRAIGHT, TURN, VISION, EJECTBALL, EJECTHATCH, ELEVATOR, INTAKE, MODE
   }
 
   Object[][] autoTemplate = {
@@ -130,6 +130,7 @@ public class Robot extends TimedRobot {
   // station
 
   Object[][] sideShip1HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
       // Movement type, Rotation, Speed
@@ -141,7 +142,7 @@ public class Robot extends TimedRobot {
       // Hatch
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -68, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -90, 0.5 },
       // Movement type, Distance, Speed
@@ -152,6 +153,7 @@ public class Robot extends TimedRobot {
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 236, 1 },
       // Movement type, Rotation, Speed
@@ -174,6 +176,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip3HatchLeft = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 258, 1 },
       // Movement type, Rotation, Speed
@@ -196,6 +199,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip1HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
       // Movement type, Rotation, Speed
@@ -217,6 +221,7 @@ public class Robot extends TimedRobot {
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 236, 1 },
       // Movement type, Rotation, Speed
@@ -239,6 +244,7 @@ public class Robot extends TimedRobot {
   };
 
   Object[][] sideShip3HatchRight = {
+      { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 258, 1 },
       // Movement type, Rotation, Speed
@@ -259,7 +265,7 @@ public class Robot extends TimedRobot {
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
   };
-
+/* DEPRECATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
   Object[][] sideShip1BallLeft = {
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 214, 1 },
@@ -389,13 +395,14 @@ public class Robot extends TimedRobot {
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
   };
+  */
 
   /*
    * =================================== 
    * AUTOMODES FOR FRONT CARGOSHIP HOLDS
    * ===================================
    */
-
+  /* DEPRECATED AUTOMODES (AUTOMODES DROPPING GAMEPIECE ON FRONT HOLDS IN CARGO SHIP)
   Object[][] frontShipBall = {
       // Movement type, Distance, Speed
       // Not driving full distance because vision takes over
@@ -419,14 +426,16 @@ public class Robot extends TimedRobot {
     { AutoMovement.EJECTHATCH },
     // Movement type, Distance, Speed
 };
+*/
 
+/* DEPCRATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
 //Automode 5 (Left Rocket Cargo)
 Object[][] autoRockeBallLeft = {
   {AutoMovement.STRAIGHT, 181, 1},
   {AutoMovement.TURN, 90, -0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
-  { AutoMovement.ELEVATOR, "BALL_ONE"},
+  {AutoMovement.ELEVATOR, "BALL_ONE"},
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, 0.5},
@@ -449,9 +458,10 @@ Object[][] autoRocketBallRight = {
   {AutoMovement.TURN, 39.5, 0.5},
   {AutoMovement.STRAIGHT, 110, -1}
 };
-
+*/
 //Automode 7 (Left Lower Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchLeftLower = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -476,6 +486,7 @@ Object[][] autoRocketHatchLeftLower = {
 
 //Automode 8 (Left Middle Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchLeftMiddle = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -500,6 +511,7 @@ Object[][] autoRocketHatchLeftMiddle = {
 
 //Automode 9 (Left Upper Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchLeftUpper = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -524,6 +536,7 @@ Object[][] autoRocketHatchLeftUpper = {
 
 //Automode 10 (Right Lower Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchRightLower = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -548,6 +561,7 @@ Object[][] autoRocketHatchRightLower = {
 
 //Automode 11 (Right Middle Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchRightMiddle = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -572,6 +586,7 @@ Object[][] autoRocketHatchRightMiddle = {
 
 //Automode 12 (Right Upper Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchRightUpper = {
+  { AutoMovement.MODE, RobotMode.HATCH },
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
@@ -1292,17 +1307,4 @@ Object[][] autoRocketHatchRightUpper = {
     }
 
   }
-
-  public void intakeMotorsUp() {
-    intake.set(1);
-  }
-
-  public void intakeMotorsDown() {
-    intake.set(-1);
-  }
-
-  public void intakeMotorsReset() {
-    intake.set(0);
-  }
-
 }
