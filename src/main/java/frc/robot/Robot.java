@@ -138,7 +138,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Elevator
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       // Hatch
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -184,7 +184,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -207,7 +207,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -229,7 +229,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -252,7 +252,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
-      { AutoMovement.ELEVATOR, "HATCH_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -274,7 +274,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -295,7 +295,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -317,7 +317,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -339,7 +339,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -360,7 +360,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -382,7 +382,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, 68, 1 },
@@ -410,7 +410,7 @@ public class Robot extends TimedRobot {
       // Activate Vision
       { AutoMovement.VISION },
       // Ball
-      { AutoMovement.ELEVATOR, "BALL_ONE"},
+      { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
       { AutoMovement.EJECTBALL },
       // Movement type, Distance, Speed
   };
@@ -422,7 +422,7 @@ public class Robot extends TimedRobot {
     // Activate Vision
     { AutoMovement.VISION },
     // Ball
-    { AutoMovement.ELEVATOR, "BALL_ONE"},
+    { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
     { AutoMovement.EJECTHATCH },
     // Movement type, Distance, Speed
 };
@@ -435,7 +435,11 @@ Object[][] autoRockeBallLeft = {
   {AutoMovement.TURN, 90, -0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
+<<<<<<< HEAD
   {AutoMovement.ELEVATOR, "BALL_ONE"},
+=======
+  { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
+>>>>>>> b5b53287582dd1e83971dcefe21c8745b7838241
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, 0.5},
@@ -450,7 +454,7 @@ Object[][] autoRocketBallRight = {
   {AutoMovement.TURN, 90, 0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
-  { AutoMovement.ELEVATOR, "BALL_ONE"},
+  { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, -0.5},
@@ -466,7 +470,7 @@ Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -480,7 +484,7 @@ Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH}
 };
 
@@ -491,7 +495,7 @@ Object[][] autoRocketHatchLeftMiddle = {
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -505,7 +509,7 @@ Object[][] autoRocketHatchLeftMiddle = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH}
 };
 
@@ -516,7 +520,7 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.TURN, 39.2, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -530,7 +534,7 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.TURN, 32, 0.5},
   {AutoMovement.STRAIGHT, 60, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH}
 };
 
@@ -541,7 +545,7 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -555,7 +559,7 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_ONE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
   {AutoMovement.EJECTHATCH}
 };
 
@@ -566,7 +570,7 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -580,18 +584,22 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_TWO"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
   {AutoMovement.EJECTHATCH}
 };
 
 //Automode 12 (Right Upper Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchRightUpper = {
+<<<<<<< HEAD
   { AutoMovement.MODE, RobotMode.HATCH },
+=======
+
+>>>>>>> b5b53287582dd1e83971dcefe21c8745b7838241
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH},
 
   {AutoMovement.STRAIGHT, 12.8, -1},
@@ -605,7 +613,7 @@ Object[][] autoRocketHatchRightUpper = {
   {AutoMovement.TURN, 32, -0.5},
   {AutoMovement.STRAIGHT, 60, 1}, 
   {AutoMovement.VISION},
-  {AutoMovement.ELEVATOR, "HATCH_THREE"},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE},
   {AutoMovement.EJECTHATCH}
 };
   // Dictates the current auto that is selected
@@ -788,99 +796,57 @@ Object[][] autoRocketHatchRightUpper = {
 
     // Stops the entire robot code when autoStop = true;
     if (!autoStop) {
-      // If the STRAIGHT movement is selected
-      if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.STRAIGHT) {
-        if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
-          chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
-        } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
-          chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
-        } else { // Destination Reached
-          resetEncoders();
-          autoStep++;
+      switch ((AutoMovement) selectedAuto[autoStep][0]) {
+        case MODE:
+          currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
+          break;
+        case STRAIGHT:
+          if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
+            chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
+          } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
+            chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
+          } else { // Destination Reached
+            resetEncoders();
+            autoStep++;
+          }
+          break;
+        case TURN:
+          if (getAngle() < ((double) selectedAuto[autoStep][1] - 10) || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
+            chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
+          } else { // Turn Complete
+            resetEncoders();
+            autoStep++;
+          }
+          break;
+        case ELEVATOR:
+          switch ((ElevatorHeight) selectedAuto[autoStep][1]) {
+            case HATCH_ONE:
+              break;
+            case HATCH_TWO:
+              break;
+            case HATCH_THREE:
+              break;
+            case BALL_ONE:
+              break;
+            case BALL_TWO:
+              break;
+            case BALL_THREE:
+              break;
+            default:
+              break;
         }
-      }
-      // If the TURN movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.TURN) {
-        if (getAngle() < ((double) selectedAuto[autoStep][1] - 10)
-            || getAngle() < ((double) selectedAuto[autoStep][1] + 10)) { // Turning code
-          chassis.arcadeDrive((double) selectedAuto[autoStep][2], (double) selectedAuto[autoStep][1]);
-        } else { // Turn Complete
-          resetEncoders();
-          autoStep++;
-        }
-      }
-      // If HATCH_ONE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_ONE") {
-          elevatorMovement(ElevatorHeight.HATCH_ONE);
-        } else {
-           ;
-        }
-      }
-
-      // If HATCH_TWO is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_TWO") {
-          elevatorMovement(ElevatorHeight.HATCH_TWO);
-        } else {
-          ;
-        }
-      }
-
-      // If HATCH_THREE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_THREE") {
-          elevatorMovement(ElevatorHeight.HATCH_THREE);
-        } else {
-          ;
-        }
-      }
-
-      // If BALL_ONE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BAll_ONE") {
-          elevatorMovement(ElevatorHeight.BALL_ONE);
-        } else {
-          ;
-        }
-      }
-
-      // If BALL_TWO is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BALL_TWO") {
-          elevatorMovement(ElevatorHeight.BALL_TWO);
-        } else {
-          ;
-        }
-      }
-      
-      // If BALL_THREE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BAll_THREE") {
-          elevatorMovement(ElevatorHeight.BALL_THREE);
-        } else {
-          ;
-        }
-      }
-
-      // If EJECTHATCH is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
-        fire();
-      }
-
-      // If EJECTBALL is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTBALL) {
-        fire();
-      }
-
-      // If the VISION movement is selected
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.VISION) {
-        if (true) {
-          cameraControl();
-        } else {
-          // TODO: Add a coninuation section for auto code
-          autoStep++;
-        }
+        case EJECTBALL:
+          break;
+        case EJECTHATCH:
+          break;
+        case VISION:
+          if (true) {
+            cameraControl();
+          } else {
+            // TODO: Add a coninuation section for auto code
+            autoStep++;
+          }
+          break;
       }
     }
 
