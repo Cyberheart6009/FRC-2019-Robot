@@ -445,11 +445,12 @@ Object[][] autoRocketBallRight = {
   {AutoMovement.STRAIGHT, 110, -1}
 };
 
-//Automode 7 (Left Lower Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 7 (Left Lower Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftLower = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, -0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
+  
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_ONE"},
   {AutoMovement.EJECTHATCH},
@@ -469,10 +470,10 @@ Object[][] autoRocketHatchLeftLower = {
   {AutoMovement.EJECTHATCH}
 };
 
-//Automode 8 (Left Middle Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 8 (Left Middle Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftMiddle = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, -0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_TWO"},
@@ -493,10 +494,10 @@ Object[][] autoRocketHatchLeftMiddle = {
   {AutoMovement.EJECTHATCH}
 };
 
-//Automode 9 (Left Upper Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 9 (Left Upper Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchLeftUpper = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, -0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_THREE"},
@@ -517,10 +518,10 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.EJECTHATCH}
 };
 
-//Automode 10 (Right Lower Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 10 (Right Lower Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightLower = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, 0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_ONE"},
@@ -541,10 +542,10 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.EJECTHATCH}
 };
 
-//Automode 11 (Right Middle Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 11 (Right Middle Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightMiddle = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, 0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_TWO"},
@@ -565,10 +566,10 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.EJECTHATCH}
 };
 
-//Automode 12 (Right Upper Rocket Hatch) Starting position is on line seperating higher levels
+//Automode 12 (Right Upper Rocket Hatch) Starting position is on edge before ramp
 Object[][] autoRocketHatchRightUpper = {
-  {AutoMovement.STRAIGHT, 10, 1},
-  {AutoMovement.TURN, 39.2, 0.5},
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 17.1, -0.5},
   {AutoMovement.STRAIGHT, 150, 1},
   {AutoMovement.VISION},
   {AutoMovement.ELEVATOR, "HATCH_THREE"},
@@ -786,60 +787,24 @@ Object[][] autoRocketHatchRightUpper = {
           autoStep++;
         }
       }
-      // If HATCH_ONE is selected (Elevator heights)
+/*
+      // If ELEVATOR is selected (Elevator heights)
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
         if ((String) selectedAuto[autoStep][1] == "HATCH_ONE") {
           elevatorMovement(ElevatorHeight.HATCH_ONE);
-        } else {
-           ;
-        }
-      }
-
-      // If HATCH_TWO is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_TWO") {
+        } else if ((String) selectedAuto[autoStep][1] == "HATCH_TWO"){
           elevatorMovement(ElevatorHeight.HATCH_TWO);
-        } else {
-          ;
-        }
-      }
-
-      // If HATCH_THREE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "HATCH_THREE") {
+        } else if ((String) selectedAuto[autoStep][1] == "HATCH_THREE"){
           elevatorMovement(ElevatorHeight.HATCH_THREE);
-        } else {
-          ;
-        }
-      }
-
-      // If BALL_ONE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BAll_ONE") {
+        } else if ((String) selectedAuto[autoStep][1] == "BAll_ONE"){
           elevatorMovement(ElevatorHeight.BALL_ONE);
-        } else {
-          ;
-        }
-      }
-
-      // If BALL_TWO is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BALL_TWO") {
+        } else if ((String) selectedAuto[autoStep][1] == "BALL_TWO") {
           elevatorMovement(ElevatorHeight.BALL_TWO);
-        } else {
-          ;
-        }
-      }
-      
-      // If BALL_THREE is selected (Elevator heights)
-      else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.ELEVATOR) {
-        if ((String) selectedAuto[autoStep][1] == "BAll_THREE") {
+        } else if ((String) selectedAuto[autoStep][1] == "BAll_THREE") {
           elevatorMovement(ElevatorHeight.BALL_THREE);
-        } else {
-          ;
         }
       }
-
+*/
       // If EJECTHATCH is selected
       else if ((AutoMovement) selectedAuto[autoStep][0] == AutoMovement.EJECTHATCH) {
         fire();
@@ -1107,6 +1072,8 @@ Object[][] autoRocketHatchRightUpper = {
     SmartDashboard.putNumber("Elevator Height", getElevatorHeight());
 
     SmartDashboard.putString("Current Robot mode", currentRobotMode.name());
+
+    SmartDashboard.putNumber("Ultrasonic Distance", getUltrasonicDistance());
   }
 
   public double getUltrasonicDistance() {
