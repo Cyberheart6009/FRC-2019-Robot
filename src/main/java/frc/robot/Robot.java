@@ -142,14 +142,18 @@ public class Robot extends TimedRobot {
       // Hatch
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, -68, 1 },
+      { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -90, 0.5 },
+      { AutoMovement.TURN, 104, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 167, 1 },
+      { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -7.7, 0.5 },
-      // TODO: Figure out how to pick up a new ball
+      { AutoMovement.TURN, -14.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, 165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
       // Maybe use ultrasonic distance- sensors
   };
   Object[][] sideShip2HatchLeft = {
@@ -164,14 +168,18 @@ public class Robot extends TimedRobot {
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -90, 0.5 },
+      { AutoMovement.TURN, 103.4, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 188.5, 1 },
+      { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -7.7, 0.5 },
-      // TODO: Figure out how to pick up a new ball
+      { AutoMovement.TURN, -13.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, 165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
       // Maybe use ultrasonic distance- sensors
   };
 
@@ -187,13 +195,19 @@ public class Robot extends TimedRobot {
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -38,  1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -90, 0.5 },
+      { AutoMovement.TURN, 102.3, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 210, 1 },
+      { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, -7.7, 0.5 },
+      { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, 165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
+
       // TODO: Figure out how to pick up a new ball
       // Maybe use ultrasonic distance- sensors
   };
@@ -210,15 +224,18 @@ public class Robot extends TimedRobot {
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.TURN, -104, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 167, 1 },
+      { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 7.7, 0.5 },
-      // TODO: Figure out how to pick up a new ball
-      // Maybe use ultrasonic distance- sensors
+      { AutoMovement.TURN, 14.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, -165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
   };
   Object[][] sideShip2HatchRight = {
       { AutoMovement.MODE, RobotMode.HATCH },
@@ -232,15 +249,18 @@ public class Robot extends TimedRobot {
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.TURN, -103.4, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 188.5, 1 },
+      { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 7.7, 0.5 },
-      // TODO: Figure out how to pick up a new ball
-      // Maybe use ultrasonic distance- sensors
+      { AutoMovement.TURN, 13.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, -165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
   };
 
   Object[][] sideShip3HatchRight = {
@@ -255,15 +275,18 @@ public class Robot extends TimedRobot {
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
       { AutoMovement.EJECTHATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 68, 1 },
+      { AutoMovement.STRAIGHT, -38,  1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.TURN, 102.3, 0.5 },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 210, 1 },
+      { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
-      { AutoMovement.TURN, 7.7, 0.5 },
-      // TODO: Figure out how to pick up a new ball
-      // Maybe use ultrasonic distance- sensors
+      { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.STRAIGHT, -173, 1 },
+      { AutoMovement.TURN, 165, 0.5 },
+      { AutoMovement.VISION },
+      { AutoMovement.EJECTHATCH },
   };
 /* DEPRECATED AUTOMODES (AUTOMODES WITH A BALL AS THE STARTING GAME PIECE)
   Object[][] sideShip1BallLeft = {
@@ -435,11 +458,7 @@ Object[][] autoRockeBallLeft = {
   {AutoMovement.TURN, 90, -0.5},
   {AutoMovement.STRAIGHT, 50, 1},
   {AutoMovement.VISION},
-<<<<<<< HEAD
-  {AutoMovement.ELEVATOR, "BALL_ONE"},
-=======
   { AutoMovement.ELEVATOR, ElevatorHeight.BALL_ONE},
->>>>>>> b5b53287582dd1e83971dcefe21c8745b7838241
   {AutoMovement.EJECTBALL},
   {AutoMovement.STRAIGHT, 10, -1},
   {AutoMovement.TURN, 90, 0.5},
@@ -590,11 +609,7 @@ Object[][] autoRocketHatchRightMiddle = {
 
 //Automode 12 (Right Upper Rocket Hatch) Starting position is on line seperating higher levels
 Object[][] autoRocketHatchRightUpper = {
-<<<<<<< HEAD
   { AutoMovement.MODE, RobotMode.HATCH },
-=======
-
->>>>>>> b5b53287582dd1e83971dcefe21c8745b7838241
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.TURN, 39.2, 0.5},
   {AutoMovement.STRAIGHT, 150, 1},
