@@ -126,7 +126,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION, EJECT, ELEVATOR, INTAKE, MODE
+    STRAIGHT, TURN, VISION, EJECT, ELEVATOR, MODE
   }
 
   Object[][] autoTemplate = {
@@ -696,11 +696,11 @@ Object[][] autoRocketHatchRightUpper = {
 
     m_chooser.addOption("Left Rocket Low", leftRocketLow);
     m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
-    m_chooser.addOption("Left Rocket Long", leftRocketHigh);
+    m_chooser.addOption("Left Rocket High", leftRocketHigh);
 
     m_chooser.addOption("Right Rocket Low", rightRocketLow);
     m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
-    m_chooser.addOption("Right Rocket Long", rightRocketHigh);
+    m_chooser.addOption("Right Rocket High", rightRocketHigh);
 
     
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -833,9 +833,67 @@ Object[][] autoRocketHatchRightUpper = {
 
     // The step that auto is on
     autoStep = 0;
+    
+    m_chooser.addOption("Left Ship Short", leftShipShort);
+    m_chooser.addOption("Left Ship Middle", leftShipMiddle);
+    m_chooser.addOption("Left Ship Long", leftShipLong);
 
-    // Which auto are we using?
+    m_chooser.addOption("Right Ship Short", rightShipShort);
+    m_chooser.addOption("Right Ship Middle", rightShipMiddle);
+    m_chooser.addOption("Right Ship Long", rightShipLong);
+
+    m_chooser.addOption("Left Rocket Low", leftRocketLow);
+    m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
+    m_chooser.addOption("Left Rocket High", leftRocketHigh);
+
+    m_chooser.addOption("Right Rocket Low", rightRocketLow);
+    m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
+    m_chooser.addOption("Right Rocket High", rightRocketHigh);
     selectedAuto = autoTemplate;
+    // Which auto are we using?
+    switch (m_autoSelected) {
+      case "Left Ship Short":
+        selectedAuto = sideShip1HatchLeft;
+        break;
+      case "Left Ship Middle":
+        selectedAuto = sideShip2HatchLeft;
+        break;
+      case "Left Ship Long":
+        selectedAuto = sideShip3HatchLeft;
+        break;
+      case "Right Ship Short":
+        selectedAuto = sideShip1HatchRight;
+        break;
+      case "Right Ship Middle":
+        selectedAuto = sideShip2HatchRight;
+        break;
+      case "Right Ship Long":
+        selectedAuto = sideShip3HatchRight;
+        break;
+      case "Left Rocket Low":
+        selectedAuto = autoRocketHatchLeftLower;
+        break;
+      case "Left Rocket Middle":
+        selectedAuto = autoRocketHatchLeftMiddle;
+        break;
+      case "Left Rocket High":
+        selectedAuto = autoRocketHatchLeftUpper;
+        break;
+      case "Right Rocket Low":
+        selectedAuto = autoRocketHatchRightLower;
+        break;
+      case "Right Rocket Middle":
+        selectedAuto = autoRocketHatchRightMiddle;
+        break;
+      case "Right Rocket High":
+        selectedAuto = autoRocketHatchRightUpper;
+        break;
+      default:
+        selectedAuto = autoRocketHatchRightUpper;
+      
+    }
+    System.out.println(selectedAuto);
+    
 
     // Has the auto finished?
     autoStop = false;
