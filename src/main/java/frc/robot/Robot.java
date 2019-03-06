@@ -957,10 +957,11 @@ Object[][] autoRocketHatchRightUpper = {
           doFire = true;
           break;
         case VISION:
-          if (true) {
+          if (cameraControl()) {
             cameraControl();
           } else {
             // TODO: Add a coninuation section for auto code
+            //DONE
             autoStep++;
           }
           break;
@@ -1186,24 +1187,36 @@ Object[][] autoRocketHatchRightUpper = {
     // Add in heading code
     return gyro.getAngle();
   }
-
+  
   // Takes camera input and converts it into a robot action
-  public void cameraControl() {
+  public boolean cameraControl() {
     // Sets the threshold for vision
     int threshold = 15;
+    double oldX = 0.0;
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       chassis.arcadeDrive(1.0, -10);
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
       // turn left
+      
     } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
       chassis.arcadeDrive(1.0, 10);
       System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
-      // turn right
-    } else {
+      // turn right      
+    } 
+    else {
       chassis.arcadeDrive(1.0, 0);
       System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
-      // drive straight
+      // drive straight  
+       
     }
+    if ((xEntry.getDouble(0.0) - oldX) < 0.01) {
+      return false;        
+    } else {
+      oldX = xEntry.getDouble(0.0);
+      return true;
+    }     
+    
+    
 
     /*
      * // Ultrasonic Distance Auto Foolproof Mech. Compares middle, right, and left
