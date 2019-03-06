@@ -8,7 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Ultrasonic;
+//import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.Encoder;
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  AnalogInput ultrasonic;
+  // AnalogInput ultrasonic;
   // used in robotSpeed function
   double robotSpeed;
   double oldEncoderCounts = 0.0;
@@ -1210,12 +1210,12 @@ Object[][] autoRocketHatchRightUpper = {
 
     SmartDashboard.putString("Current Robot mode", currentRobotMode.name());
 
-    SmartDashboard.putNumber("Ultrasonic Distance", getUltrasonicDistance());
+    //SmartDashboard.putNumber("Ultrasonic Distance", getUltrasonicDistance());
   }
-
+/*
   public double getUltrasonicDistance() {
     return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
-  }
+  }*/
 
   public boolean elevatorMovement(ElevatorHeight level) {
     double firstHeight = 0;
@@ -1294,11 +1294,12 @@ Object[][] autoRocketHatchRightUpper = {
     startPistonTime = System.currentTimeMillis();
   }
 
+  /*
   public void ultrasonicStop() {
     if (getUltrasonicDistance() <= 1) {
       chassis.stopMotor();
     }
-  }
+  }*/
 
   public void fire() {
     if (startStartPistonTime) {
