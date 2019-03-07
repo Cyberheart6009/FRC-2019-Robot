@@ -166,6 +166,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -14.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -192,6 +193,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -13.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -219,6 +221,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -248,6 +251,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 14.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
@@ -273,6 +277,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 13.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
@@ -299,6 +304,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -958,10 +964,9 @@ Object[][] autoRocketHatchRightUpper = {
           break;
         case VISION:
           if (cameraControl()) {
-            cameraControl();
+            break;
           } else {
-            // TODO: Add a coninuation section for auto code
-            //DONE
+            // TODO: Add a coninuation section for auto code. COMPLETED, NEEDS TESTING
             autoStep++;
           }
           break;
