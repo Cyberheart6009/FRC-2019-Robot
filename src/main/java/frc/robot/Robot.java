@@ -57,6 +57,10 @@ public class Robot extends TimedRobot {
   private static final String rightRocketLow = "Right Rocket Low";
   private static final String rightRocketMedium = "Left Rocket Medium";
   private static final String rightRocketHigh = "Left Rocket High";
+
+  private static final String rightRocketMiddleHigh = "Right Rocket Middle to High";
+  private static final String leftRocketMiddleHigh = "Left Rocket Middle to High";
+
   double oldX = 0.0;
 
   private String m_autoSelected;
@@ -584,8 +588,8 @@ Object[][] autoRocketHatchLeftUpper = {
   {AutoMovement.STRAIGHT, 22.5, -1},
   {AutoMovement.TURN, 159, -0.5},
   {AutoMovement.STRAIGHT, 183, 1},
-  {AutoMovement.VISION},
   {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
 
   {AutoMovement.STRAIGHT, 183, -1},
   {AutoMovement.TURN, 159, 0.5},
@@ -607,8 +611,8 @@ Object[][] autoRocketHatchRightLower = {
   {AutoMovement.STRAIGHT, 22.5, -1},
   {AutoMovement.TURN, 159, 0.5},
   {AutoMovement.STRAIGHT, 183, 1},
-  {AutoMovement.VISION},
   {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
 
   {AutoMovement.STRAIGHT, 183, -1},
   {AutoMovement.TURN, 159, -0.5},
@@ -631,8 +635,8 @@ Object[][] autoRocketHatchRightMiddle = {
   {AutoMovement.STRAIGHT, 22.5, -1},
   {AutoMovement.TURN, 159, 0.5},
   {AutoMovement.STRAIGHT, 183, 1},
-  {AutoMovement.VISION},
   {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
 
   {AutoMovement.STRAIGHT, 183, -1},
   {AutoMovement.TURN, 159, -0.5},
@@ -654,8 +658,8 @@ Object[][] autoRocketHatchRightUpper = {
   {AutoMovement.STRAIGHT, 22.5, -1},
   {AutoMovement.TURN, 159, 0.5},
   {AutoMovement.STRAIGHT, 183, 1},
-  {AutoMovement.VISION},
   {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
 
   {AutoMovement.STRAIGHT, 183, -1},
   {AutoMovement.TURN, 159, -0.5},
@@ -663,6 +667,54 @@ Object[][] autoRocketHatchRightUpper = {
   {AutoMovement.STRAIGHT, 10, 1},
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE} 
 };
+
+//Automode 13 (Right Middle to Upper Rocket Hatch) Starting position is on edge before ramp
+Object[][] autoRocketHatchRightMiddleUpper = {
+  {AutoMovement.MODE, RobotMode.HATCH },
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 16.5, -0.5},
+  {AutoMovement.STRAIGHT, 160, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
+
+  {AutoMovement.STRAIGHT, 22.5, -1},
+  {AutoMovement.TURN, 159, 0.5},
+  {AutoMovement.STRAIGHT, 183, 1},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
+
+  {AutoMovement.STRAIGHT, 183, -1},
+  {AutoMovement.TURN, 159, -0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE} 
+};
+
+//Automode 9 (Left Upper Rocket Hatch) Starting position is on edge before ramp
+Object[][] autoRocketHatchLeftMiddleUpper = {
+  {AutoMovement.MODE, RobotMode.HATCH },
+  {AutoMovement.STRAIGHT, 34, 1},
+  {AutoMovement.TURN, 16.5, 0.5},
+  {AutoMovement.STRAIGHT, 160, 1},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_TWO},
+
+  {AutoMovement.STRAIGHT, 22.5, -1},
+  {AutoMovement.TURN, 159, -0.5},
+  {AutoMovement.STRAIGHT, 183, 1},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.VISION},
+
+  {AutoMovement.STRAIGHT, 183, -1},
+  {AutoMovement.TURN, 159, 0.5},
+  {AutoMovement.VISION},
+  {AutoMovement.STRAIGHT, 10, 1},
+  {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE}
+};
+
+
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
   // Indicates what step of auto the robot is on
@@ -710,7 +762,9 @@ Object[][] autoRocketHatchRightUpper = {
     m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
     m_chooser.addOption("Right Rocket High", rightRocketHigh);
 
-    
+    m_chooser.addOption("Right Rocket Middle to High", rightRocketMiddleHigh);
+    m_chooser.addOption("Left Rocket Middle to High", leftRocketMiddleHigh);
+
     SmartDashboard.putData("Auto choices", m_chooser);
 
 
@@ -857,6 +911,9 @@ Object[][] autoRocketHatchRightUpper = {
     m_chooser.addOption("Right Rocket Low", rightRocketLow);
     m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
     m_chooser.addOption("Right Rocket High", rightRocketHigh);
+
+    m_chooser.addOption("Right Rocket Middle to High", rightRocketMiddleHigh);
+    m_chooser.addOption("Left Rocket Middle to High", leftRocketMiddleHigh);
     selectedAuto = autoTemplate;
     // Which auto are we using?
     switch (m_autoSelected) {
@@ -895,6 +952,12 @@ Object[][] autoRocketHatchRightUpper = {
         break;
       case "Right Rocket High":
         selectedAuto = autoRocketHatchRightUpper;
+        break;
+      case "Right Rocket Middle to High":
+        selectedAuto = autoRocketHatchRightMiddleUpper;
+        break;
+      case "Left Rocket Middle to High":
+        selectedAuto = autoRocketHatchLeftMiddleUpper;
         break;
       default:
         selectedAuto = autoRocketHatchRightUpper;
