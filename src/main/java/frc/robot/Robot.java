@@ -5,6 +5,9 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 //network table -> Check if the XY coords are cenetered. If not, turn until they are centered.
+//mjpg stream (trhough TCDSB internet) http://10.16.149.192:8081 or 8080/?action=stream
+//mjpg command "mjpg_streamer -i 'input_uvc.so -br 249' -o output_http.so"
+//pi connection ssh raspberrypi.local -l pi
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -644,6 +647,7 @@ Object[][] autoRocketHatchRightUpper = {
 
   {AutoMovement.STRAIGHT, 12.8, -1},
   {AutoMovement.TURN, 140, 1},
+
 
   {AutoMovement.STRAIGHT, 180, 1},
   {AutoMovement.VISION},
