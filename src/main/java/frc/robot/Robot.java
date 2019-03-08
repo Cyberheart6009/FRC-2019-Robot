@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
   NetworkTableEntry yEntry;
 
   enum AutoMovement {
-    STRAIGHT, TURN, VISION, EJECT, ELEVATOR, INTAKE, MODE
+    STRAIGHT, TURN, VISION, EJECT, ELEVATOR, MODE
   }
 
   Object[][] autoTemplate = {
@@ -169,6 +169,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -14.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -195,6 +196,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -13.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -222,6 +224,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -251,6 +254,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 225, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 14.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
@@ -276,6 +280,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 246, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 13.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, -165, 0.5 },
@@ -302,6 +307,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 268, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -12.4, 0.5 },
+      { AutoMovement.STRAIGHT, 28, 1 },
       { AutoMovement.VISION },
       { AutoMovement.STRAIGHT, -173, 1 },
       { AutoMovement.TURN, 165, 0.5 },
@@ -700,11 +706,11 @@ Object[][] autoRocketHatchRightUpper = {
 
     m_chooser.addOption("Left Rocket Low", leftRocketLow);
     m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
-    m_chooser.addOption("Left Rocket Long", leftRocketHigh);
+    m_chooser.addOption("Left Rocket High", leftRocketHigh);
 
     m_chooser.addOption("Right Rocket Low", rightRocketLow);
     m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
-    m_chooser.addOption("Right Rocket Long", rightRocketHigh);
+    m_chooser.addOption("Right Rocket High", rightRocketHigh);
 
     
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -837,9 +843,67 @@ Object[][] autoRocketHatchRightUpper = {
 
     // The step that auto is on
     autoStep = 0;
+    
+    m_chooser.addOption("Left Ship Short", leftShipShort);
+    m_chooser.addOption("Left Ship Middle", leftShipMiddle);
+    m_chooser.addOption("Left Ship Long", leftShipLong);
 
-    // Which auto are we using?
+    m_chooser.addOption("Right Ship Short", rightShipShort);
+    m_chooser.addOption("Right Ship Middle", rightShipMiddle);
+    m_chooser.addOption("Right Ship Long", rightShipLong);
+
+    m_chooser.addOption("Left Rocket Low", leftRocketLow);
+    m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
+    m_chooser.addOption("Left Rocket High", leftRocketHigh);
+
+    m_chooser.addOption("Right Rocket Low", rightRocketLow);
+    m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
+    m_chooser.addOption("Right Rocket High", rightRocketHigh);
     selectedAuto = autoTemplate;
+    // Which auto are we using?
+    switch (m_autoSelected) {
+      case "Left Ship Short":
+        selectedAuto = sideShip1HatchLeft;
+        break;
+      case "Left Ship Middle":
+        selectedAuto = sideShip2HatchLeft;
+        break;
+      case "Left Ship Long":
+        selectedAuto = sideShip3HatchLeft;
+        break;
+      case "Right Ship Short":
+        selectedAuto = sideShip1HatchRight;
+        break;
+      case "Right Ship Middle":
+        selectedAuto = sideShip2HatchRight;
+        break;
+      case "Right Ship Long":
+        selectedAuto = sideShip3HatchRight;
+        break;
+      case "Left Rocket Low":
+        selectedAuto = autoRocketHatchLeftLower;
+        break;
+      case "Left Rocket Middle":
+        selectedAuto = autoRocketHatchLeftMiddle;
+        break;
+      case "Left Rocket High":
+        selectedAuto = autoRocketHatchLeftUpper;
+        break;
+      case "Right Rocket Low":
+        selectedAuto = autoRocketHatchRightLower;
+        break;
+      case "Right Rocket Middle":
+        selectedAuto = autoRocketHatchRightMiddle;
+        break;
+      case "Right Rocket High":
+        selectedAuto = autoRocketHatchRightUpper;
+        break;
+      default:
+        selectedAuto = autoRocketHatchRightUpper;
+      
+    }
+    System.out.println(selectedAuto);
+    
 
     // Has the auto finished?
     autoStop = false;
@@ -903,10 +967,10 @@ Object[][] autoRocketHatchRightUpper = {
           doFire = true;
           break;
         case VISION:
-          if (true) {
-            cameraControl();
+          if (cameraControl()) {
+            break;
           } else {
-            // TODO: Add a coninuation section for auto code
+            // TODO: Add a coninuation section for auto code. COMPLETED, NEEDS TESTING
             autoStep++;
           }
           break;
@@ -1132,24 +1196,36 @@ Object[][] autoRocketHatchRightUpper = {
     // Add in heading code
     return gyro.getAngle();
   }
-
+  
   // Takes camera input and converts it into a robot action
-  public void cameraControl() {
+  public boolean cameraControl() {
     // Sets the threshold for vision
     int threshold = 15;
+    double oldX = 0.0;
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       chassis.arcadeDrive(1.0, -10);
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
       // turn left
+      
     } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
       chassis.arcadeDrive(1.0, 10);
       System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
-      // turn right
-    } else {
+      // turn right      
+    } 
+    else {
       chassis.arcadeDrive(1.0, 0);
       System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
-      // drive straight
+      // drive straight  
+       
     }
+    if ((xEntry.getDouble(0.0) - oldX) < 0.01) {
+      return false;        
+    } else {
+      oldX = xEntry.getDouble(0.0);
+      return true;
+    }     
+    
+    
 
     /*
      * // Ultrasonic Distance Auto Foolproof Mech. Compares middle, right, and left
