@@ -57,6 +57,7 @@ public class Robot extends TimedRobot {
   private static final String rightRocketLow = "Right Rocket Low";
   private static final String rightRocketMedium = "Left Rocket Medium";
   private static final String rightRocketHigh = "Left Rocket High";
+  double oldX = 0.0;
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -152,15 +153,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip1HatchLeft = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 214, 1 },
+      { AutoMovement.STRAIGHT, 200, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.STRAIGHT, 8, 1},
       // Activate Vision
       { AutoMovement.VISION },
       // Elevator
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      // Hatch
-      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
@@ -180,14 +180,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip2HatchLeft = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 236, 1 },
+      { AutoMovement.STRAIGHT, 222, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.STRAIGHT, 8, 1},
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
@@ -208,14 +208,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip3HatchLeft = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 258, 1 },
+      { AutoMovement.STRAIGHT, 244, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 90, 0.5 },
+      { AutoMovement.STRAIGHT, 8, 1},
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38,  1 },
       // Movement type, Rotation, Speed
@@ -238,14 +238,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip1HatchRight = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 214, 1 },
+      { AutoMovement.STRAIGHT, 200, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -90, 0.5 },
+      { AutoMovement.STRAIGHT, 8, 1},
       // Activate Vision
-      { AutoMovement.VISION },
+      { AutoMovement.VISION },      
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
@@ -264,14 +264,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip2HatchRight = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 236, 1 },
+      { AutoMovement.STRAIGHT, 222, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -90, 0.5 },
       // Activate Vision
+      { AutoMovement.STRAIGHT, 8, 1},
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECT},
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38, 1 },
       // Movement type, Rotation, Speed
@@ -291,14 +291,14 @@ public class Robot extends TimedRobot {
   Object[][] sideShip3HatchRight = {
       { AutoMovement.MODE, RobotMode.HATCH },
       // Movement type, Distance, Speed
-      { AutoMovement.STRAIGHT, 258, 1 },
+      { AutoMovement.STRAIGHT, 244, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, -90, 0.5 },
+      { AutoMovement.STRAIGHT, 8, 1},
       // Activate Vision
       { AutoMovement.VISION },
       // Hatch
       { AutoMovement.ELEVATOR, ElevatorHeight.HATCH_ONE},
-      { AutoMovement.EJECT },
       // Movement type, Distance, Speed
       { AutoMovement.STRAIGHT, -38,  1 },
       // Movement type, Rotation, Speed
@@ -1199,7 +1199,7 @@ Object[][] autoRocketHatchRightUpper = {
   public boolean cameraControl() {
     // Sets the threshold for vision
     int threshold = 15;
-    double oldX = 0.0;
+    
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       chassis.arcadeDrive(1.0, -10);
       System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
