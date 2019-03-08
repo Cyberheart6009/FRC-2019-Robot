@@ -895,25 +895,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
 
     // The step that auto is on
     autoStep = 0;
-    
-    m_chooser.addOption("Left Ship Short", leftShipShort);
-    m_chooser.addOption("Left Ship Middle", leftShipMiddle);
-    m_chooser.addOption("Left Ship Long", leftShipLong);
 
-    m_chooser.addOption("Right Ship Short", rightShipShort);
-    m_chooser.addOption("Right Ship Middle", rightShipMiddle);
-    m_chooser.addOption("Right Ship Long", rightShipLong);
-
-    m_chooser.addOption("Left Rocket Low", leftRocketLow);
-    m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
-    m_chooser.addOption("Left Rocket High", leftRocketHigh);
-
-    m_chooser.addOption("Right Rocket Low", rightRocketLow);
-    m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
-    m_chooser.addOption("Right Rocket High", rightRocketHigh);
-
-    m_chooser.addOption("Right Rocket Middle to High", rightRocketMiddleHigh);
-    m_chooser.addOption("Left Rocket Middle to High", leftRocketMiddleHigh);
     selectedAuto = autoTemplate;
     // Which auto are we using?
     switch (m_autoSelected) {
