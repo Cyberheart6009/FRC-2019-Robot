@@ -56,8 +56,8 @@ public class Robot extends TimedRobot {
   private static final String leftRocketHigh = "Left Rocket High";
 
   private static final String rightRocketLow = "Right Rocket Low";
-  private static final String rightRocketMedium = "Left Rocket Medium";
-  private static final String rightRocketHigh = "Left Rocket High";
+  private static final String rightRocketMedium = "Right Rocket Medium";
+  private static final String rightRocketHigh = "Right Rocket High";
 
   private static final String visionAutoTesting = "visionAutoTest";
   private static final String rightRocketMiddleHigh = "Right Rocket Middle to High";
@@ -119,10 +119,10 @@ public class Robot extends TimedRobot {
   // Creates the driver's joystick
   Joystick driver, operator;
   boolean operatorOverride;
-  ButtonTimers specialButtonOpTimer = new ButtonTimers(); 
-  ButtonTimers buttonOpTimer = new ButtonTimers();
-  ButtonTimers climbFrontTimer = new ButtonTimers();
-  ButtonTimers climbBackTimer = new ButtonTimers();
+  ButtonTimers specialButtonOpTimer = new ButtonTimers(100); 
+  ButtonTimers buttonOpTimer = new ButtonTimers(100);
+  ButtonTimers climbFrontTimer = new ButtonTimers(100);
+  ButtonTimers climbBackTimer = new ButtonTimers(100);
 
   // Elevator Movement
   double startElevatorTime = 0;
@@ -866,6 +866,133 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void robotPeriodic() {
+        //System.out.println(operator.getRawAxis(5));
+    // Main Robot Movement
+    chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
+
+    // Driver Input Buttons
+    aButton = driver.getRawButton(1);
+    bButton = driver.getRawButton(2);
+    xButton = driver.getRawButton(3);
+    yButton = driver.getRawButton(4);
+    lBumper = driver.getRawButton(5);
+		rBumper = driver.getRawButton(6);
+		select = driver.getRawButton(7);
+		start = driver.getRawButton(8);
+		leftThumbPush = driver.getRawButton(9);
+    rightThumbPush = driver.getRawButton(10);
+
+    if (start) {
+      autoStop = true;
+    }
+    if (lBumper){
+    } 
+    if (rBumper) {
+      invertControls = -1;
+    } else {
+      invertControls = 1;
+    }
+
+    if (!climbFrontTimer.isActive) {
+      if (aButton) {
+        if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
+          frontClimb.set(DoubleSolenoid.Value.kForward);
+        } else {
+          frontClimb.set(DoubleSolenoid.Value.kReverse);
+        }
+      }
+      climbFrontTimer.activate();
+    }
+
+    if (!climbBackTimer.isActive) {
+      if (bButton) {
+        if (backClimb.get() == DoubleSolenoid.Value.kReverse){
+          backClimb.set(DoubleSolenoid.Value.kForward);
+        } else {
+          backClimb.set(DoubleSolenoid.Value.kReverse);
+        }
+      }
+      climbBackTimer.activate();
+    }
+
+    // OPERATOR CONTROLS BEGINS
+    aButtonOp = operator.getRawButton(1);
+    bButtonOp = operator.getRawButton(2);
+    xButtonOp = operator.getRawButton(3);
+    yButtonOp = operator.getRawButton(4);
+    lBumperOp = operator.getRawButton(5);
+		rBumperOp = operator.getRawButton(6);
+		selectOp = operator.getRawButton(7);
+		startOp = operator.getRawButton(8);
+		leftThumbPushOp = operator.getRawButton(9);
+    rightThumbPushOp = operator.getRawButton(10);
+
+    if (selectOp) {
+      if (!specialButtonOpTimer.isActive) {
+        operatorOverride = !operatorOverride;
+        destinationHeight = ElevatorHeight.NONE;
+        startElevatorTime = 0;
+        specialButtonOpTimer.activate();
+      }
+    }
+
+    if (operatorOverride) {
+      elevator.set(operator.getRawAxis(5));
+      if (xButtonOp) {
+        doFire = true;
+      }
+    }
+
+    lemmeDie.set(-operator.getY());
+
+    if (operator.getRawAxis(3) > 0.1) {
+      intake.set(operator.getRawAxis(3));
+    } else if (operator.getRawAxis(2) > 0.1) {
+      intake.set(-operator.getRawAxis(2));
+    } else {
+      intake.set(0);
+    }
+
+    if (rBumperOp) {
+      if (!specialButtonOpTimer.isActive) {
+        switchMode();
+        specialButtonOpTimer.activate();
+      }
+    }
+
+    if (lBumperOp) {
+      doFire = true;
+    }
+
+    if (!buttonOpTimer.isActive) {
+      if (currentRobotMode == RobotMode.CARGO) {
+        if (aButtonOp) {
+          destinationHeight = ElevatorHeight.BALL_ONE;
+          //System.out.println("Got to A");
+        }
+        if (bButtonOp) {
+          destinationHeight = ElevatorHeight.BALL_TWO;
+          //System.out.println("Got to B");
+        }
+        if (yButtonOp) {
+          destinationHeight = ElevatorHeight.BALL_THREE;
+        }
+      } else {
+        if (aButtonOp) {
+          destinationHeight = ElevatorHeight.HATCH_ONE;
+        }
+        if (bButtonOp) {
+          destinationHeight = ElevatorHeight.HATCH_TWO;
+        }
+        if (yButtonOp) {
+          destinationHeight = ElevatorHeight.HATCH_THREE;
+        }
+      }
+      buttonOpTimer.activate();
+    }
+
+
+
     // print compressor status to the console
     // //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
@@ -885,7 +1012,7 @@ Object[][] visionAutoTest = {
     //System.out.println("Encoder Counts: " + elevatorEncoder.get());
     //System.out.println(destinationHeight);
 
-    if (!elevatorLimit.get()){
+    if (elevatorLimit.get()){
       elevatorEncoder.reset();
     }
 
@@ -1098,136 +1225,7 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void teleopPeriodic() {
-    //System.out.println(operator.getRawAxis(5));
-    // Main Robot Movement
-    chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
 
-    // Driver Input Buttons
-    aButton = driver.getRawButton(1);
-    bButton = driver.getRawButton(2);
-    xButton = driver.getRawButton(3);
-    yButton = driver.getRawButton(4);
-    lBumper = driver.getRawButton(5);
-		rBumper = driver.getRawButton(6);
-		select = driver.getRawButton(7);
-		start = driver.getRawButton(8);
-		leftThumbPush = driver.getRawButton(9);
-    rightThumbPush = driver.getRawButton(10);
-
-    if (start) {
-      if (invertControls == -1) {
-        invertControls = 1;
-      } else if (invertControls == 1) {
-        invertControls = -1;
-      } else {
-        //System.out.println("Something went wrong when inverting the controls");
-      }
-    }
-    if (lBumper){
-    } 
-    if (rBumper) {
-      invertControls = -1;
-    } else {
-      invertControls = 1;
-    }
-
-    if (!climbFrontTimer.isActive) {
-      if (aButton) {
-        if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
-          frontClimb.set(DoubleSolenoid.Value.kForward);
-        } else {
-          frontClimb.set(DoubleSolenoid.Value.kReverse);
-        }
-      }
-      climbFrontTimer.activate();
-    }
-
-    if (!climbBackTimer.isActive) {
-      if (bButton) {
-        if (backClimb.get() == DoubleSolenoid.Value.kReverse){
-          backClimb.set(DoubleSolenoid.Value.kForward);
-        } else {
-          backClimb.set(DoubleSolenoid.Value.kReverse);
-        }
-      }
-      climbBackTimer.activate();
-    }
-
-    // OPERATOR CONTROLS BEGINS
-    aButtonOp = operator.getRawButton(1);
-    bButtonOp = operator.getRawButton(2);
-    xButtonOp = operator.getRawButton(3);
-    yButtonOp = operator.getRawButton(4);
-    lBumperOp = operator.getRawButton(5);
-		rBumperOp = operator.getRawButton(6);
-		selectOp = operator.getRawButton(7);
-		startOp = operator.getRawButton(8);
-		leftThumbPushOp = operator.getRawButton(9);
-    rightThumbPushOp = operator.getRawButton(10);
-
-    if (selectOp) {
-      if (!specialButtonOpTimer.isActive) {
-        operatorOverride = !operatorOverride;
-        destinationHeight = ElevatorHeight.NONE;
-        startElevatorTime = 0;
-        specialButtonOpTimer.activate();
-      }
-    }
-
-    if (operatorOverride) {
-      elevator.set(operator.getRawAxis(5));
-      if (xButtonOp) {
-        doFire = true;
-      }
-    }
-
-    lemmeDie.set(-operator.getY());
-
-    if (operator.getRawAxis(3) > 0.1) {
-      intake.set(operator.getRawAxis(3));
-    } else if (operator.getRawAxis(2) > 0.1) {
-      intake.set(-operator.getRawAxis(2));
-    } else {
-      intake.set(0);
-    }
-
-    if (rBumperOp) {
-      if (!specialButtonOpTimer.isActive) {
-        switchMode();
-        specialButtonOpTimer.activate();
-      }
-    }
-
-    if (lBumperOp) {
-      doFire = true;
-    }
-
-    if (!buttonOpTimer.isActive) {
-      if (currentRobotMode == RobotMode.CARGO) {
-        if (aButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_ONE;
-          //System.out.println("Got to A");
-        }
-        if (bButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_TWO;
-          //System.out.println("Got to B");
-        }
-        if (yButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_THREE;
-        }
-      } else {
-        if (aButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_ONE;
-        }
-        if (bButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_TWO;
-        }
-        if (yButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_THREE;
-        }
-      }
-      buttonOpTimer.activate();
-    }
 
     // The old control scheme
     /**
@@ -1437,22 +1435,22 @@ Object[][] visionAutoTest = {
     double firstHeight = 0;
     switch (level) {
       case HATCH_ONE:
-        elevatorHeight = firstHeight + 0.5;
+        elevatorHeight = firstHeight + 0.1;
         break;
       case HATCH_TWO:
-        elevatorHeight = firstHeight + 23;
+        elevatorHeight = firstHeight + 22;
         break;
       case HATCH_THREE:
-        elevatorHeight = firstHeight + 48;
+        elevatorHeight = firstHeight + 47;
         break;
       case BALL_ONE:
-        elevatorHeight = firstHeight + 5.25;
+        elevatorHeight = firstHeight + 3.25;
         break;
       case BALL_TWO:
-        elevatorHeight = firstHeight + 27.25;
+        elevatorHeight = firstHeight + 25.25;
         break;
       case BALL_THREE:
-        elevatorHeight = firstHeight + 50;
+        elevatorHeight = firstHeight + 48;
         break;
       default:
         break;
