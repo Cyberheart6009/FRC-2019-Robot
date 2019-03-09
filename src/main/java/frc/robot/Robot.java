@@ -834,10 +834,6 @@ Object[][] visionAutoTest = {
     destinationHeight = ElevatorHeight.NONE;
 
     elevatorLimit = new DigitalInput(6);
-    /*
-    if (servoOne.getAngle() > 80 && servoOne.getAngle() < 100 && servoTwo.getAngle() > 80 && servoTwo.getAngle() < 100) {
-      switchMode();
-    }*/
   }
 
   /**
@@ -1019,6 +1015,7 @@ Object[][] visionAutoTest = {
       //System.out.println("lowering elevator");
       if (elevatorDown()) {
         startElevatorTime = 0;
+        autoStep++;
         elevatorEncoder.reset();
       }
     }
@@ -1144,6 +1141,10 @@ Object[][] visionAutoTest = {
       switch ((AutoMovement) selectedAuto[autoStep][0]) {
         case MODE:
           currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
+          if (currentRobotMode == RobotMode.CARGO) {
+            switchMode();
+          }
+          autoStep++
           break;
         case STRAIGHT:
           if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
