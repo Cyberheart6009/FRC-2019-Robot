@@ -813,10 +813,10 @@ Object[][] visionAutoTest = {
     // Initializes compressor
     c = new Compressor(0);
     // Compressor solenoids
-    hatchSolenoid = new DoubleSolenoid(0, 0, 1);
-    ballSolenoid = new DoubleSolenoid(0, 2, 3);
-    frontClimb = new DoubleSolenoid(1, 0, 1);
-    backClimb = new DoubleSolenoid(1, 2, 3);
+    hatchSolenoid = new DoubleSolenoid(0, 1);
+    ballSolenoid = new DoubleSolenoid(2, 3);
+    frontClimb = new DoubleSolenoid(4, 5);
+    backClimb = new DoubleSolenoid(6, 7);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -849,6 +849,10 @@ Object[][] visionAutoTest = {
     destinationHeight = ElevatorHeight.NONE;
 
     elevatorLimit = new DigitalInput(1);
+    /*
+    if (servoOne.getAngle() > 80 && servoOne.getAngle() < 100 && servoTwo.getAngle() > 80 && servoTwo.getAngle() < 100) {
+      switchMode();
+    }*/
   }
 
   /**
