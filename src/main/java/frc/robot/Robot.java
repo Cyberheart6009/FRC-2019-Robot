@@ -1024,7 +1024,7 @@ Object[][] visionAutoTest = {
       elevator.set(0);
     }
 
-    System.out.println(elevatorLimit.get());
+    //System.out.println(elevatorLimit.get());
   }
 
   /**
@@ -1114,7 +1114,7 @@ Object[][] visionAutoTest = {
         selectedAuto = autoRocketHatchRightUpper;
       
     }
-    //System.out.println(selectedAuto);
+    System.out.println(selectedAuto);
     
 
     // Has the auto finished?
@@ -1143,20 +1143,25 @@ Object[][] visionAutoTest = {
           currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
           if (currentRobotMode == RobotMode.CARGO) {
             switchMode();
+            System.out.println("switchMode()");
           }
-          autoStep++
+          System.out.println("AutoMovement.MODE");
+          autoStep++;
           break;
         case STRAIGHT:
+          System.out.println("AutoMovement.MODE");
           if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
             chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
           } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
             chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
           } else { // Destination Reached
             resetEncoders();
+            System.out.println("AutoMovement.STRAIGHT Complete");
             autoStep++;
           }
           break;
         case TURN:
+          System.out.println("AutoMovement.TURN");
           if (setStartAngle) {
             startAngle = getAngle();
             setStartAngle = false;
@@ -1174,20 +1179,24 @@ Object[][] visionAutoTest = {
           } else { // Turn Complete
             setStartAngle = true;
             resetEncoders();
+            System.out.println("AutoMovement.TURN Complete");
             autoStep++;
           }
           break;
         case ELEVATOR:
           destinationHeight = (ElevatorHeight) selectedAuto[autoStep][1];
+          System.out.println("AutoMovement.ELEVATOR");
           break;
         case EJECT:
           //doFire = true;
           break;
         case VISION:
           if (cameraControl()) {
+            System.out.println("AutoMovement.VISION");
             break;
           } else {
             // TODO: Add a coninuation section for auto code. COMPLETED, NEEDS TESTING
+            System.out.println("AutoMovement.VISION complete");
             autoStep++;
           }
           break;
@@ -1430,13 +1439,13 @@ Object[][] visionAutoTest = {
         elevatorHeight = firstHeight + 47;
         break;
       case BALL_ONE:
-        elevatorHeight = firstHeight + 3.25;
+        elevatorHeight = firstHeight + 2.25;
         break;
       case BALL_TWO:
-        elevatorHeight = firstHeight + 25.25;
+        elevatorHeight = firstHeight + 24.25;
         break;
       case BALL_THREE:
-        elevatorHeight = firstHeight + 48;
+        elevatorHeight = firstHeight + 47;
         break;
       default:
         break;
