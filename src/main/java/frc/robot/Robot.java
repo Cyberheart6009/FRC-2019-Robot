@@ -890,21 +890,21 @@ Object[][] visionAutoTest = {
     }
 
     if (destinationHeight != ElevatorHeight.NONE) {
-      System.out.println("got to Robot Periodic");
+      //System.out.println("got to Robot Periodic");
       if (elevatorMovement(destinationHeight)) {
-        System.out.println("elevatorMovement returned true");
+        //System.out.println("elevatorMovement returned true");
         elevator.set(0.2);
         destinationHeight = ElevatorHeight.NONE;
         doFire = true;
         startElevatorTime = System.currentTimeMillis();
       }
       else {
-        System.out.println("Kill Me Now");
+        //System.out.println("Kill Me Now");
       }
     }
 
     if (startElevatorTime + 600 < System.currentTimeMillis() && startElevatorTime > 1) {
-      System.out.println("lowering elevator");
+      //System.out.println("lowering elevator");
       if (elevatorDown()) {
         startElevatorTime = 0;
         elevatorEncoder.reset();
@@ -914,6 +914,8 @@ Object[][] visionAutoTest = {
     if (getElevatorHeight() >= 65) {
       elevator.set(0);
     }
+
+    System.out.println(elevatorLimit.get());
   }
 
   /**
@@ -1477,7 +1479,7 @@ Object[][] visionAutoTest = {
     if (getElevatorHeight() >= elevatorHeight) {
       //elevator.set(-(((0-1)/((0-(elevatorHeight/2))*(0-(elevatorHeight/2))))*((getElevatorHeight()-(elevatorHeight/2))*(getElevatorHeight()-(elevatorHeight/2))) + 1));
       elevator.set(-0.2);
-      System.out.println("Negative");
+      //System.out.println("Negative");
     }
     
     if  (getElevatorHeight() <= elevatorHeight) {
