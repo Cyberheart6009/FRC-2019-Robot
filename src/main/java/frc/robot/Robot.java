@@ -848,7 +848,7 @@ Object[][] visionAutoTest = {
     driver = new Joystick(0);
     destinationHeight = ElevatorHeight.NONE;
 
-    elevatorLimit = new DigitalInput(1);
+    elevatorLimit = new DigitalInput(6);
     /*
     if (servoOne.getAngle() > 80 && servoOne.getAngle() < 100 && servoTwo.getAngle() > 80 && servoTwo.getAngle() < 100) {
       switchMode();
@@ -1168,6 +1168,8 @@ Object[][] visionAutoTest = {
     if (selectOp) {
       if (!specialButtonOpTimer.isActive) {
         operatorOverride = !operatorOverride;
+        destinationHeight = ElevatorHeight.NONE;
+        startElevatorTime = 0;
         specialButtonOpTimer.activate();
       }
     }
