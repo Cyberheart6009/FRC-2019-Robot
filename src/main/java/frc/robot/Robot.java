@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
   private static final String rightRocketMiddleHigh = "Right Rocket Middle to High";
   private static final String leftRocketMiddleHigh = "Left Rocket Middle to High";
 
+  private static final String driverControlled = "No Auto";
   double oldX = 0.0;
 
   private String m_autoSelected;
@@ -734,8 +735,7 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
+    m_chooser.setDefaultOption("No Auto", driverControlled);
 
     m_chooser.addOption("Left Ship Short", leftShipShort);
     m_chooser.addOption("Left Ship Middle", leftShipMiddle);
@@ -801,7 +801,7 @@ Object[][] visionAutoTest = {
     hatchSolenoid = new DoubleSolenoid(0, 1);
     ballSolenoid = new DoubleSolenoid(2, 3);
     frontClimb = new DoubleSolenoid(4, 5);
-    backClimb = new DoubleSolenoid(6, 7);
+    backClimb = new DoubleSolenoid(7, 6);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -1041,13 +1041,16 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void autonomousInit() {
+    // Has the auto finished?
+    autoStop = false;
+
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     //System.out.println("Auto selected: " + m_autoSelected);
 
     // The step that auto is on
     autoStep = 0;
-
+/*
     m_chooser.addOption("Right Ship Short", rightShipShort);
     m_chooser.addOption("Right Ship Middle", rightShipMiddle);
     m_chooser.addOption("Right Ship Long", rightShipLong);
@@ -1061,6 +1064,10 @@ Object[][] visionAutoTest = {
     m_chooser.addOption("Right Rocket High", rightRocketHigh);
 
     m_chooser.addOption("Vision Test", visionAutoTesting);
+    m_chooser.addOption("No Auto", driverControlled);
+
+    SmartDashboard.putData("Auto choices", m_chooser);
+    m_autoSelected = (String) m_chooser.getSelected(); */
 
 
     selectedAuto = autoTemplate;
@@ -1110,15 +1117,15 @@ Object[][] visionAutoTest = {
       case "Left Rocket Middle to High":
         selectedAuto = autoRocketHatchLeftMiddleUpper;
         break;
+      case driverControlled:
+        autoStop = true;
+        break;
       default:
         selectedAuto = autoRocketHatchRightUpper;
       
     }
     System.out.println(selectedAuto);
     
-
-    // Has the auto finished?
-    autoStop = false;
 
     // Reset the encoders before game begins
     resetEncoders();
@@ -1140,20 +1147,23 @@ Object[][] visionAutoTest = {
     if (!autoStop) {
       switch ((AutoMovement) selectedAuto[autoStep][0]) {
         case MODE:
-          currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
+          /*currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
           if (currentRobotMode == RobotMode.CARGO) {
             switchMode();
             System.out.println("switchMode()");
-          }
+          }*/
           System.out.println("AutoMovement.MODE");
-          autoStep++;
+          this.autoStep++;
+          System.out.println(autoStep);
           break;
         case STRAIGHT:
-          System.out.println("AutoMovement.MODE");
-          if (getDistance() < ((double) selectedAuto[autoStep][1]) - 10) { // Forwards
-            chassis.arcadeDrive((double) selectedAuto[autoStep][2], 0);
-          } else if (getDistance() > (double) selectedAuto[autoStep][1] + 10) { // Backwards
-            chassis.arcadeDrive((-(double) selectedAuto[autoStep][2]), 0);
+          System.out.println("AutoMovement.STRAIGHT");
+          if (getDistance() < ((int) selectedAuto[autoStep][1]) - 10) { // Forwards
+            leftChassis.set((int) selectedAuto[autoStep][2] - 10);
+            rightChassis.set((int) selectedAuto[autoStep][2] - 10);
+          } else if (getDistance() > (int) selectedAuto[autoStep][1] + 10) { // Backwards
+            leftChassis.set(-(int) selectedAuto[autoStep][2] - 10);
+            rightChassis.set(-(int) selectedAuto[autoStep][2] - 10);
           } else { // Destination Reached
             resetEncoders();
             System.out.println("AutoMovement.STRAIGHT Complete");
@@ -1201,6 +1211,8 @@ Object[][] visionAutoTest = {
           }
           break;
       }
+    } else {
+      
     }
 
   }
@@ -1310,8 +1322,7 @@ Object[][] visionAutoTest = {
 
   // Converts encoder counts into inches
   public double getDistance() {
-    //return ((double) (leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
-    return 1;
+    return ((double) (leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
   }
 
   // Resets both encoders with one function
@@ -1442,7 +1453,7 @@ Object[][] visionAutoTest = {
         elevatorHeight = firstHeight + 2.25;
         break;
       case BALL_TWO:
-        elevatorHeight = firstHeight + 24.25;
+        elevatorHeight = firstHeight + 23.25;
         break;
       case BALL_THREE:
         elevatorHeight = firstHeight + 47;
@@ -1471,13 +1482,13 @@ Object[][] visionAutoTest = {
 
   public boolean elevatorDown() {
     elevatorHeight = 0.5;
-    if (getElevatorHeight() >= elevatorHeight) {
+    if (!elevatorLimit.get()) {
       //elevator.set(-(((0-1)/((0-(elevatorHeight/2))*(0-(elevatorHeight/2))))*((getElevatorHeight()-(elevatorHeight/2))*(getElevatorHeight()-(elevatorHeight/2))) + 1));
       elevator.set(-0.2);
       //System.out.println("Negative");
     }
     
-    if  (getElevatorHeight() <= elevatorHeight) {
+    if  (elevatorLimit.get()) {
       return true;
     } else {
       return false;
