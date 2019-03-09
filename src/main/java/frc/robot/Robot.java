@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 import com.kauailabs.navx.frc.*;
 
@@ -58,6 +59,7 @@ public class Robot extends TimedRobot {
   private static final String rightRocketMedium = "Left Rocket Medium";
   private static final String rightRocketHigh = "Left Rocket High";
 
+  private static final String visionAutoTesting = "visionAutoTest";
   private static final String rightRocketMiddleHigh = "Right Rocket Middle to High";
   private static final String leftRocketMiddleHigh = "Left Rocket Middle to High";
 
@@ -100,8 +102,8 @@ public class Robot extends TimedRobot {
   // instantiating solenoid
   // params are the two port numbers for the forward channel and reverse channel
   // respectively
-  DoubleSolenoid ballSolenoid;
-  DoubleSolenoid hatchSolenoid;
+  DoubleSolenoid ballSolenoid, hatchSolenoid;
+  DoubleSolenoid frontClimb, backClimb;
   // Custom class to enable timed piston extrude and intrude
   boolean doFire;
   double startPistonTime;
@@ -116,11 +118,11 @@ public class Robot extends TimedRobot {
   Boolean aButtonOp, bButtonOp, xButtonOp, yButtonOp, lBumperOp, rBumperOp, selectOp, startOp, leftThumbPushOp, rightThumbPushOp;
   // Creates the driver's joystick
   Joystick driver, operator;
-  double buttonTime = 0;
-  boolean startButtonTime = true;
-  boolean pressed = false;
-  boolean specialPressed = false;
   boolean operatorOverride;
+  ButtonTimers specialButtonOpTimer = new ButtonTimers(); 
+  ButtonTimers buttonOpTimer = new ButtonTimers();
+  ButtonTimers climbFrontTimer = new ButtonTimers();
+  ButtonTimers climbBackTimer = new ButtonTimers();
 
   // Elevator Movement
   double startElevatorTime = 0;
@@ -142,6 +144,8 @@ public class Robot extends TimedRobot {
       { AutoMovement.STRAIGHT, 200, 1 },
       // Movement type, Rotation, Speed
       { AutoMovement.TURN, 90, 0.5 } };
+
+  DigitalInput elevatorLimit;
 
   // Possible Automodes
 
@@ -699,7 +703,11 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   {AutoMovement.ELEVATOR, ElevatorHeight.HATCH_THREE}
 };
 
-
+Object[][] visionAutoTest = {
+  {AutoMovement.MODE, RobotMode.HATCH},
+  {AutoMovement.VISION},
+  {AutoMovement.EJECT}
+};
   // Dictates the current auto that is selected
   Object[][] selectedAuto;
   // Indicates what step of auto the robot is on
@@ -708,14 +716,12 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   boolean autoStop;
 
   enum ElevatorHeight {
-    HATCH_ONE, HATCH_TWO, HATCH_THREE, BALL_ONE, BALL_TWO, BALL_THREE
+    HATCH_ONE, HATCH_TWO, HATCH_THREE, BALL_ONE, BALL_TWO, BALL_THREE, NONE
   }
   double elevatorHeight;
+  ElevatorHeight destinationHeight;
 
   int invertControls = 1;
-
-  // TODO: Modify these temp variables
-  Boolean elevatorLimitSwitch = false;
 
   boolean setStartAngle = true;
   double startAngle;
@@ -747,6 +753,9 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
     m_chooser.addOption("Right Rocket High", rightRocketHigh);
 
+    m_chooser.addOption("Vision Test", visionAutoTesting);
+
+    
     m_chooser.addOption("Right Rocket Middle to High", rightRocketMiddleHigh);
     m_chooser.addOption("Left Rocket Middle to High", leftRocketMiddleHigh);
 
@@ -789,8 +798,10 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     // Initializes compressor
     c = new Compressor(0);
     // Compressor solenoids
-    hatchSolenoid = new DoubleSolenoid(1, 0);
+    hatchSolenoid = new DoubleSolenoid(0, 1);
     ballSolenoid = new DoubleSolenoid(2, 3);
+    frontClimb = new DoubleSolenoid(4, 5);
+    backClimb = new DoubleSolenoid(6, 7);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -815,9 +826,18 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     // set the state of the valve
     ballSolenoid.set(DoubleSolenoid.Value.kOff);
     hatchSolenoid.set(DoubleSolenoid.Value.kOff);
+    frontClimb.set(DoubleSolenoid.Value.kOff);
+    backClimb.set(DoubleSolenoid.Value.kOff);
 
     // Maps a joystick to a variable
     driver = new Joystick(0);
+    destinationHeight = ElevatorHeight.NONE;
+
+    elevatorLimit = new DigitalInput(6);
+    /*
+    if (servoOne.getAngle() > 80 && servoOne.getAngle() < 100 && servoTwo.getAngle() > 80 && servoTwo.getAngle() < 100) {
+      switchMode();
+    }*/
   }
 
   /**
@@ -832,32 +852,55 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   @Override
   public void robotPeriodic() {
     // print compressor status to the console
-    // System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
+    // //System.out.println(enabled + "/n" + pressureSwitch + "/n" + current);
 
-    // System.out.println("Im In");
+    // //System.out.println("Im In");
     updateSmartDashboard();
 
-    if (pressed) {
-      if (buttonTime + 200 < System.currentTimeMillis()) {
-        pressed = false;
-      }
-    }
-
-    if (specialPressed) {
-      if (buttonTime + 200 < System.currentTimeMillis()) {
-        pressed = false;
-      }
-    }
+    buttonOpTimer.update();
+    specialButtonOpTimer.update();
+    climbFrontTimer.update();
+    climbBackTimer.update();
 
     if (doFire) {
       fire();
     }
 
-    if (startElevatorTime + 200 < System.currentTimeMillis() && startElevatorTime > 1) {
-      if (elevatorMovement(ElevatorHeight.HATCH_ONE)) {
-        startElevatorTime = 0;
+    //System.out.println("getElevatorHeight(): " + getElevatorHeight());
+    //System.out.println("Encoder Counts: " + elevatorEncoder.get());
+    //System.out.println(destinationHeight);
+
+    if (!elevatorLimit.get()){
+      elevatorEncoder.reset();
+    }
+
+    if (destinationHeight != ElevatorHeight.NONE) {
+      //System.out.println("got to Robot Periodic");
+      if (elevatorMovement(destinationHeight)) {
+        //System.out.println("elevatorMovement returned true");
+        elevator.set(0.2);
+        destinationHeight = ElevatorHeight.NONE;
+        doFire = true;
+        startElevatorTime = System.currentTimeMillis();
+      }
+      else {
+        //System.out.println("Kill Me Now");
       }
     }
+
+    if (startElevatorTime + 600 < System.currentTimeMillis() && startElevatorTime > 1) {
+      //System.out.println("lowering elevator");
+      if (elevatorDown()) {
+        startElevatorTime = 0;
+        elevatorEncoder.reset();
+      }
+    }
+
+    if (getElevatorHeight() >= 65) {
+      elevator.set(0);
+    }
+
+    System.out.println(elevatorLimit.get());
   }
 
   /**
@@ -876,10 +919,25 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    //System.out.println("Auto selected: " + m_autoSelected);
 
     // The step that auto is on
     autoStep = 0;
+
+    m_chooser.addOption("Right Ship Short", rightShipShort);
+    m_chooser.addOption("Right Ship Middle", rightShipMiddle);
+    m_chooser.addOption("Right Ship Long", rightShipLong);
+
+    m_chooser.addOption("Left Rocket Low", leftRocketLow);
+    m_chooser.addOption("Left Rocket Middle", leftRocketMedium);
+    m_chooser.addOption("Left Rocket High", leftRocketHigh);
+
+    m_chooser.addOption("Right Rocket Low", rightRocketLow);
+    m_chooser.addOption("Right Rocket Middle", rightRocketMedium);
+    m_chooser.addOption("Right Rocket High", rightRocketHigh);
+
+    m_chooser.addOption("Vision Test", visionAutoTesting);
+
 
     selectedAuto = autoTemplate;
     // Which auto are we using?
@@ -920,6 +978,8 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
       case "Right Rocket High":
         selectedAuto = autoRocketHatchRightUpper;
         break;
+      case visionAutoTesting:
+        selectedAuto = visionAutoTest;
       case "Right Rocket Middle to High":
         selectedAuto = autoRocketHatchRightMiddleUpper;
         break;
@@ -930,7 +990,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
         selectedAuto = autoRocketHatchRightUpper;
       
     }
-    System.out.println(selectedAuto);
+    //System.out.println(selectedAuto);
     
 
     // Has the auto finished?
@@ -990,9 +1050,10 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
           }
           break;
         case ELEVATOR:
-          elevatorMovement((ElevatorHeight) selectedAuto[autoStep][1]);
+          destinationHeight = (ElevatorHeight) selectedAuto[autoStep][1];
+          break;
         case EJECT:
-          doFire = true;
+          //doFire = true;
           break;
         case VISION:
           if (cameraControl()) {
@@ -1013,6 +1074,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   @Override
   public void teleopInit() {
     super.teleopInit();
+    elevatorEncoder.reset();
     operatorOverride = false;
   }
 
@@ -1021,6 +1083,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
    */
   @Override
   public void teleopPeriodic() {
+    //System.out.println(operator.getRawAxis(5));
     // Main Robot Movement
     chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
 
@@ -1042,7 +1105,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
       } else if (invertControls == 1) {
         invertControls = -1;
       } else {
-        System.out.println("Something went wrong when inverting the controls");
+        //System.out.println("Something went wrong when inverting the controls");
       }
     }
     if (lBumper){
@@ -1051,6 +1114,28 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
       invertControls = -1;
     } else {
       invertControls = 1;
+    }
+
+    if (!climbFrontTimer.isActive) {
+      if (aButton) {
+        if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
+          frontClimb.set(DoubleSolenoid.Value.kForward);
+        } else {
+          frontClimb.set(DoubleSolenoid.Value.kReverse);
+        }
+      }
+      climbFrontTimer.activate();
+    }
+
+    if (!climbBackTimer.isActive) {
+      if (bButton) {
+        if (backClimb.get() == DoubleSolenoid.Value.kReverse){
+          backClimb.set(DoubleSolenoid.Value.kForward);
+        } else {
+          backClimb.set(DoubleSolenoid.Value.kReverse);
+        }
+      }
+      climbBackTimer.activate();
     }
 
     // OPERATOR CONTROLS BEGINS
@@ -1065,60 +1150,68 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
 		leftThumbPushOp = operator.getRawButton(9);
     rightThumbPushOp = operator.getRawButton(10);
 
-    if (select) {
-      if (!specialPressed) {
-        operatorOverride = true;
-        specialPressed = true;
-        buttonTime = System.currentTimeMillis();
+    if (selectOp) {
+      if (!specialButtonOpTimer.isActive) {
+        operatorOverride = !operatorOverride;
+        destinationHeight = ElevatorHeight.NONE;
+        startElevatorTime = 0;
+        specialButtonOpTimer.activate();
       }
     }
 
     if (operatorOverride) {
-      elevator.set(operator.getY());
+      elevator.set(operator.getRawAxis(5));
       if (xButtonOp) {
         doFire = true;
       }
     }
 
-    lemmeDie.set(-operator.getRawAxis(5));
+    lemmeDie.set(-operator.getY());
 
-    if (operator.getRawAxis(2) > 0.1 || operator.getRawAxis(3) > 0.1) {
-      intake.set(operator.getRawAxis(2));
-      intake.set(-operator.getRawAxis(3));
+    if (operator.getRawAxis(3) > 0.1) {
+      intake.set(operator.getRawAxis(3));
+    } else if (operator.getRawAxis(2) > 0.1) {
+      intake.set(-operator.getRawAxis(2));
+    } else {
+      intake.set(0);
     }
 
     if (rBumperOp) {
-      if (!specialPressed) {
+      if (!specialButtonOpTimer.isActive) {
         switchMode();
-        specialPressed = true;
-        buttonTime = System.currentTimeMillis();
+        specialButtonOpTimer.activate();
       }
     }
 
-    if (!pressed) {
+    if (lBumperOp) {
+      doFire = true;
+    }
+
+    if (!buttonOpTimer.isActive) {
       if (currentRobotMode == RobotMode.CARGO) {
         if (aButtonOp) {
-          elevatorMovement(ElevatorHeight.BALL_ONE);
+          destinationHeight = ElevatorHeight.BALL_ONE;
+          //System.out.println("Got to A");
         }
         if (bButtonOp) {
-          elevatorMovement(ElevatorHeight.BALL_TWO);
+          destinationHeight = ElevatorHeight.BALL_TWO;
+          //System.out.println("Got to B");
         }
         if (yButtonOp) {
-          elevatorMovement(ElevatorHeight.BALL_THREE);
+          destinationHeight = ElevatorHeight.BALL_THREE;
         }
       } else {
         if (aButtonOp) {
-          elevatorMovement(ElevatorHeight.HATCH_ONE);
+          destinationHeight = ElevatorHeight.HATCH_ONE;
         }
         if (bButtonOp) {
-          elevatorMovement(ElevatorHeight.HATCH_TWO);
+          destinationHeight = ElevatorHeight.HATCH_TWO;
         }
         if (yButtonOp) {
-          elevatorMovement(ElevatorHeight.HATCH_THREE);
+          destinationHeight = ElevatorHeight.HATCH_THREE;
         }
       }
-      pressed = true;
-      buttonTime = System.currentTimeMillis();
+      buttonOpTimer.activate();
     }
 
     // The old control scheme
@@ -1192,10 +1285,10 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
        /*
      * int threshold = 15; // drive according to vision input if
      * (xEntry.getDouble(0.0) < middlePixel + threshold) {
-     * System.out.println("Turning Left " + xEntry.getDouble(middlePixel)); // turn
+     * //System.out.println("Turning Left " + xEntry.getDouble(middlePixel)); // turn
      * left } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
-     * System.out.println("Turning Right " + xEntry.getDouble(middlePixel)); // turn
-     * right } else { System.out.println("Driving Straight " +
+     * //System.out.println("Turning Right " + xEntry.getDouble(middlePixel)); // turn
+     * right } else { //System.out.println("Driving Straight " +
      * xEntry.getDouble(middlePixel)); // drive straight }
      */
   }
@@ -1232,17 +1325,17 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     
     if (xEntry.getDouble(0.0) < middlePixel + threshold) {
       chassis.arcadeDrive(1.0, -10);
-      System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
+      //System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
       // turn left
       
     } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
       chassis.arcadeDrive(1.0, 10);
-      System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
+      //System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
       // turn right      
     } 
     else {
       chassis.arcadeDrive(1.0, 0);
-      System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
+      //System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
       // drive straight  
        
     }
@@ -1268,11 +1361,11 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
 
     /*
      * this.leftDistance = ultraLeft.getRangeInches();
-     * System.out.println(this.leftDistance); }
+     * //System.out.println(this.leftDistance); }
      * 
      * if (ultraMiddle.getRangeInches() < ultraRight.getRangeInches()) {
      * this.rightDistance = ultraRight.getRangeInches();
-     * System.out.println(this.rightDistance); }
+     * //System.out.println(this.rightDistance); }
      * 
      * if (this.leftDistance > this.rightDistance) { // adjust left } else if
      * (this.leftDistance < this.rightDistance) { // adjust right }
@@ -1320,7 +1413,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
 
     //SmartDashboard.putNumber("Ultrasonic Distance", getUltrasonicDistance());
   }
-/*
+  /*
   public double getUltrasonicDistance() {
     return (double) (((ultrasonic.getAverageVoltage() * 1000) / 238.095) + 9.0);
   }*/
@@ -1329,45 +1422,62 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     double firstHeight = 0;
     switch (level) {
       case HATCH_ONE:
-        elevatorHeight = firstHeight;
+        elevatorHeight = firstHeight + 0.5;
         break;
       case HATCH_TWO:
-        elevatorHeight = firstHeight + 24;
+        elevatorHeight = firstHeight + 23;
         break;
       case HATCH_THREE:
         elevatorHeight = firstHeight + 48;
         break;
       case BALL_ONE:
-        elevatorHeight = firstHeight + 10.25;
+        elevatorHeight = firstHeight + 5.25;
         break;
       case BALL_TWO:
-        elevatorHeight = firstHeight + 38.25;
+        elevatorHeight = firstHeight + 27.25;
         break;
       case BALL_THREE:
-        elevatorHeight = firstHeight + 66.25;
+        elevatorHeight = firstHeight + 50;
         break;
       default:
         break;
     }
-    double x = getElevatorHeight();
-    double domain = elevatorHeight;
-    elevator.set(((0-1)/((0-(domain/2))*(0-(domain/2))))*((x-(domain/2))*(x-(domain/2))) + 1);
 
-    if (x >= elevatorHeight) {
+    //System.out.println("getElevatorHeight(): " + getElevatorHeight());
+    //System.out.println("elevatorHeight: " + elevatorHeight);
+
+    if (getElevatorHeight() <= elevatorHeight) {
+      //elevator.set(((0-1)/((0-(elevatorHeight/2))*(0-(elevatorHeight/2))))*((getElevatorHeight()-(elevatorHeight/2))*(getElevatorHeight()-(elevatorHeight/2))) + 1);
+      elevator.set(0.7);
+      //System.out.println("One");
+      //System.out.println(getElevatorHeight());
+    }
+    
+
+    if (getElevatorHeight() >= elevatorHeight) {
       return true;
     } else {
       return false;
     }
   }
 
-  public boolean liftFire(ElevatorHeight level) {
-    if (elevatorMovement(level)) {
-      doFire = true;
-      startElevatorTime = System.currentTimeMillis();
+  public boolean elevatorDown() {
+    elevatorHeight = 0.5;
+    if (getElevatorHeight() >= elevatorHeight) {
+      //elevator.set(-(((0-1)/((0-(elevatorHeight/2))*(0-(elevatorHeight/2))))*((getElevatorHeight()-(elevatorHeight/2))*(getElevatorHeight()-(elevatorHeight/2))) + 1));
+      elevator.set(-0.2);
+      //System.out.println("Negative");
+    }
+    
+    if  (getElevatorHeight() <= elevatorHeight) {
       return true;
     } else {
       return false;
     }
+  }
+
+  public void liftFire(ElevatorHeight level) {
+    destinationHeight = level;
   }
 
   public void servoClose() {
@@ -1382,7 +1492,7 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
 
   public double getMyAngle(double angle) {
     double answer = angle*(0.666666);
-    //System.out.println(answer);
+    ////System.out.println(answer);
     return answer;
   }
 
@@ -1390,11 +1500,11 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     if (currentRobotMode == RobotMode.HATCH) {
       currentRobotMode = RobotMode.CARGO;
       servoClose();
-      System.out.println("We are in Cargo Mode");
+      //System.out.println("We are in Cargo Mode");
     } else {
       currentRobotMode = RobotMode.HATCH;
       servoOpen();
-      System.out.println("We are in Hatch Mode");
+      //System.out.println("We are in Hatch Mode");
     }
   }
 
@@ -1410,15 +1520,17 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
   }*/
 
   public void fire() {
+    //System.out.println("we are fire()ing");
     if (startStartPistonTime) {
         startPistonTimer();
         startStartPistonTime = false;
     }
     if (currentRobotMode == RobotMode.HATCH) {
-      if (System.currentTimeMillis() < this.startPistonTime + 300) {
+      if (System.currentTimeMillis() < this.startPistonTime + 100) {
+        servoClose();
+      } else if (System.currentTimeMillis() < this.startPistonTime + 400) {
         c.setClosedLoopControl(false);
         hatchSolenoid.set(DoubleSolenoid.Value.kForward);
-        servoClose();
       } else {
         hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
         c.setClosedLoopControl(true);
@@ -1443,4 +1555,34 @@ Object[][] autoRocketHatchLeftMiddleUpper = {
     }
 
   }
+}
+
+
+class ButtonTimers {
+
+  public Boolean isActive = false;
+  double activated;
+  double delay;
+
+  public ButtonTimers() {
+    this.delay = 200;
+  }
+
+  public ButtonTimers(double delay) {
+    this.delay = delay;
+  }
+
+  public void activate() {
+    activated = System.currentTimeMillis();
+    isActive = true;
+  }
+
+  public void update() {
+    if (isActive) {
+      if (activated + delay < System.currentTimeMillis()) {
+        isActive = false;
+      }
+    }
+  }
+
 }
