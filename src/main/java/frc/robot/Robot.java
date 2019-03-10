@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -40,8 +39,6 @@ import com.kauailabs.navx.frc.*;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
 
   private static final String leftShipShort = "Left Ship Short";
   private static final String leftShipMiddle = "Left Ship Middle";
@@ -115,8 +112,8 @@ public class Robot extends TimedRobot {
   RobotMode currentRobotMode = RobotMode.HATCH;
 
   // Creates Joystick buttons
-  Boolean aButton, bButton, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
-  Boolean aButtonOp, bButtonOp, xButtonOp, yButtonOp, lBumperOp, rBumperOp, selectOp, startOp, leftThumbPushOp, rightThumbPushOp;
+  Boolean aButton, aButtonPressed, bButton, bButtonPressed, xButton, yButton, lBumper, rBumper, select, start, leftThumbPush, rightThumbPush;
+  Boolean aButtonOp, bButtonOp, xButtonOp, yButtonOp, lBumperOp, rBumperOp, selectOp, startOp, leftThumbPushOp, rightThumbPushOp, rBumperOpPressed;
   // Creates the driver's joystick
   Joystick driver, operator;
   boolean operatorOverride;
@@ -717,7 +714,7 @@ Object[][] visionAutoTest = {
   boolean autoStop;
 
   enum ElevatorHeight {
-    HATCH_ONE, HATCH_TWO, HATCH_THREE, BALL_ONE, BALL_TWO, BALL_THREE, NONE
+    HATCH_ONE, HATCH_TWO, HATCH_THREE, BALL_ONE, BALL_TWO, BALL_THREE, BALL_SHIP, NONE
   }
   double elevatorHeight;
   ElevatorHeight destinationHeight;
@@ -801,7 +798,7 @@ Object[][] visionAutoTest = {
     hatchSolenoid = new DoubleSolenoid(0, 1);
     ballSolenoid = new DoubleSolenoid(2, 3);
     frontClimb = new DoubleSolenoid(4, 5);
-    backClimb = new DoubleSolenoid(7, 6);
+    backClimb = new DoubleSolenoid(6, 7);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -853,7 +850,9 @@ Object[][] visionAutoTest = {
 
     // Driver Input Buttons
     aButton = driver.getRawButton(1);
+    //aButtonPressed = driver.getRawButtonPressed(1);
     bButton = driver.getRawButton(2);
+    //bButtonPressed = driver.getRawButtonPressed(2);
     xButton = driver.getRawButton(3);
     yButton = driver.getRawButton(4);
     lBumper = driver.getRawButton(5);
@@ -895,6 +894,22 @@ Object[][] visionAutoTest = {
       }
       climbBackTimer.activate();
     }
+    /*
+    if (aButtonPressed) {
+      if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
+        frontClimb.set(DoubleSolenoid.Value.kForward);
+      } else {
+        frontClimb.set(DoubleSolenoid.Value.kReverse);
+      }
+    }
+
+    if (bButtonPressed) {
+      if (backClimb.get() == DoubleSolenoid.Value.kReverse){
+        backClimb.set(DoubleSolenoid.Value.kForward);
+      } else {
+        backClimb.set(DoubleSolenoid.Value.kReverse);
+      }
+    }*/
 
     // OPERATOR CONTROLS BEGINS
     aButtonOp = operator.getRawButton(1);
@@ -902,7 +917,8 @@ Object[][] visionAutoTest = {
     xButtonOp = operator.getRawButton(3);
     yButtonOp = operator.getRawButton(4);
     lBumperOp = operator.getRawButton(5);
-		rBumperOp = operator.getRawButton(6);
+    rBumperOp = operator.getRawButton(6);
+    //rBumperOpPressed = operator.getRawButtonPressed(6);
 		selectOp = operator.getRawButton(7);
 		startOp = operator.getRawButton(8);
 		leftThumbPushOp = operator.getRawButton(9);
@@ -917,12 +933,9 @@ Object[][] visionAutoTest = {
       }
     }
 
-    if (operatorOverride) {
+    //if (operatorOverride) {
       elevator.set(operator.getRawAxis(5));
-      if (xButtonOp) {
-        doFire = true;
-      }
-    }
+    //}
 
     lemmeDie.set(-operator.getY());
 
@@ -941,35 +954,40 @@ Object[][] visionAutoTest = {
       }
     }
 
+    /*if (rBumperOpPressed) {
+      switchMode();
+    }*/
+
     if (lBumperOp) {
       doFire = true;
     }
 
-    if (!buttonOpTimer.isActive) {
-      if (currentRobotMode == RobotMode.CARGO) {
-        if (aButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_ONE;
-          //System.out.println("Got to A");
-        }
-        if (bButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_TWO;
-          //System.out.println("Got to B");
-        }
-        if (yButtonOp) {
-          destinationHeight = ElevatorHeight.BALL_THREE;
-        }
-      } else {
-        if (aButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_ONE;
-        }
-        if (bButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_TWO;
-        }
-        if (yButtonOp) {
-          destinationHeight = ElevatorHeight.HATCH_THREE;
-        }
+
+    if (currentRobotMode == RobotMode.CARGO) {
+      if (aButtonOp) {
+        destinationHeight = ElevatorHeight.BALL_ONE;
+        //System.out.println("Got to A");
       }
-      buttonOpTimer.activate();
+      if (bButtonOp) {
+        destinationHeight = ElevatorHeight.BALL_TWO;
+        //System.out.println("Got to B");
+      }
+      if (yButtonOp) {
+        destinationHeight = ElevatorHeight.BALL_THREE;
+      }
+      if (xButtonOp) {
+        destinationHeight = ElevatorHeight.BALL_SHIP;
+      }
+    } else {
+      if (aButtonOp) {
+        destinationHeight = ElevatorHeight.HATCH_ONE;
+      }
+      if (bButtonOp) {
+        destinationHeight = ElevatorHeight.HATCH_TWO;
+      }
+      if (yButtonOp) {
+        destinationHeight = ElevatorHeight.HATCH_THREE;
+      }
     }
 
 
@@ -1458,6 +1476,8 @@ Object[][] visionAutoTest = {
       case BALL_THREE:
         elevatorHeight = firstHeight + 47;
         break;
+      case BALL_SHIP:
+        elevatorHeight = firstHeight + 8.25;
       default:
         break;
     }
@@ -1493,10 +1513,6 @@ Object[][] visionAutoTest = {
     } else {
       return false;
     }
-  }
-
-  public void liftFire(ElevatorHeight level) {
-    destinationHeight = level;
   }
 
   public void servoClose() {
