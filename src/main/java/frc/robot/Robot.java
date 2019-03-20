@@ -849,10 +849,10 @@ Object[][] visionAutoTest = {
     chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
 
     // Driver Input Buttons
-    aButton = driver.getRawButton(1);
-    //aButtonPressed = driver.getRawButtonPressed(1);
-    bButton = driver.getRawButton(2);
-    //bButtonPressed = driver.getRawButtonPressed(2);
+    //aButton = driver.getRawButton(1);
+    aButtonPressed = driver.getRawButtonPressed(1);
+    //bButton = driver.getRawButton(2);
+    bButtonPressed = driver.getRawButtonPressed(2);
     xButton = driver.getRawButton(3);
     yButton = driver.getRawButton(4);
     lBumper = driver.getRawButton(5);
@@ -872,7 +872,7 @@ Object[][] visionAutoTest = {
     } else {
       invertControls = 1;
     }
-
+    /*
     if (!climbFrontTimer.isActive) {
       if (aButton) {
         if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
@@ -893,8 +893,8 @@ Object[][] visionAutoTest = {
         }
       }
       climbBackTimer.activate();
-    }
-    /*
+    }*/
+    
     if (aButtonPressed) {
       if (frontClimb.get() == DoubleSolenoid.Value.kReverse){
         frontClimb.set(DoubleSolenoid.Value.kForward);
@@ -909,7 +909,7 @@ Object[][] visionAutoTest = {
       } else {
         backClimb.set(DoubleSolenoid.Value.kReverse);
       }
-    }*/
+    }
 
     // OPERATOR CONTROLS BEGINS
     aButtonOp = operator.getRawButton(1);
@@ -917,8 +917,8 @@ Object[][] visionAutoTest = {
     xButtonOp = operator.getRawButton(3);
     yButtonOp = operator.getRawButton(4);
     lBumperOp = operator.getRawButton(5);
-    rBumperOp = operator.getRawButton(6);
-    //rBumperOpPressed = operator.getRawButtonPressed(6);
+    //rBumperOp = operator.getRawButton(6);
+    rBumperOpPressed = operator.getRawButtonPressed(6);
 		selectOp = operator.getRawButton(7);
 		startOp = operator.getRawButton(8);
 		leftThumbPushOp = operator.getRawButton(9);
@@ -947,16 +947,17 @@ Object[][] visionAutoTest = {
       intake.set(0);
     }
 
+    /*
     if (rBumperOp) {
       if (!specialButtonOpTimer.isActive) {
         switchMode();
         specialButtonOpTimer.activate();
       }
-    }
+    } */
 
-    /*if (rBumperOpPressed) {
+    if (rBumperOpPressed) {
       switchMode();
-    }*/
+    }
 
     if (lBumperOp) {
       doFire = true;
@@ -1035,6 +1036,7 @@ Object[][] visionAutoTest = {
         startElevatorTime = 0;
         autoStep++;
         elevatorEncoder.reset();
+        elevator.set(0);
       }
     }
 
@@ -1165,11 +1167,11 @@ Object[][] visionAutoTest = {
     if (!autoStop) {
       switch ((AutoMovement) selectedAuto[autoStep][0]) {
         case MODE:
-          /*currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
+          currentRobotMode = (RobotMode) selectedAuto[autoStep][1];
           if (currentRobotMode == RobotMode.CARGO) {
             switchMode();
             System.out.println("switchMode()");
-          }*/
+          }
           System.out.println("AutoMovement.MODE");
           this.autoStep++;
           System.out.println(autoStep);
