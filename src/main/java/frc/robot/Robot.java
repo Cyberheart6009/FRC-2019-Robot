@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
   // Creates the network tables object
   NetworkTableInstance inst;
   // A specific table in network tables
-  NetworkTable table;
+  NetworkTable table, gripTable;
   // A specific entry for the table
   NetworkTableEntry xEntry;
   NetworkTableEntry yEntry;
@@ -813,8 +813,10 @@ Object[][] visionAutoTest = {
     inst = NetworkTableInstance.getDefault();
     // Get the table within the instance that contains the data
     table = inst.getTable("visionTable");
+    gripTable = inst.getTable("GRIP");
     // Get X and Y entries
-    xEntry = table.getEntry("xEntry");
+    //xEntry = table.getEntry("xEntry");
+    xEntry = gripTable.getEntry("myContoursReport/centerX");
     yEntry = table.getEntry("yEntry");
     // when enabled, the PCM will turn on the compressor when the pressure switch is
     // closed
@@ -871,6 +873,10 @@ Object[][] visionAutoTest = {
       invertControls = -1;
     } else {
       invertControls = 1;
+    }
+
+    if (xButton) {
+      cameraControl();
     }
     /*
     if (!climbFrontTimer.isActive) {
@@ -1192,22 +1198,7 @@ Object[][] visionAutoTest = {
           break;
         case TURN:
           System.out.println("AutoMovement.TURN");
-          if (setStartAngle) {
-            startAngle = getAngle();
-            setStartAngle = false;
-          }
-          if (getAngle() - startAngle < ((double) selectedAuto[autoStep][1] - 10)) {
-            leftBack.set((double) selectedAuto[autoStep][2]);
-            leftFront.set((double) selectedAuto[autoStep][2]);
-            rightBack.set(-(double) selectedAuto[autoStep][2]);
-            rightFront.set(-(double) selectedAuto[autoStep][2]);
-          } else if (getAngle() - startAngle > ((double) selectedAuto[autoStep][1] + 10)) {
-            leftBack.set(-(double) selectedAuto[autoStep][2]);
-            leftFront.set(-(double) selectedAuto[autoStep][2]);
-            rightBack.set((double) selectedAuto[autoStep][2]);
-            rightFront.set((double) selectedAuto[autoStep][2]);
-          } else { // Turn Complete
-            setStartAngle = true;
+          if (angleTurn((double) selectedAuto[autoStep][1], (double) selectedAuto[autoStep][2])) {
             resetEncoders();
             System.out.println("AutoMovement.TURN Complete");
             autoStep++;
@@ -1361,29 +1352,44 @@ Object[][] visionAutoTest = {
   public boolean cameraControl() {
     // Sets the threshold for vision
     int threshold = 15;
+    double[] xDefault= {1,2};
+
+    double[] xArray = xEntry.getDoubleArray(xDefault);
+    double xBuffer = 0;
+
+    for (int xLoop = 0; xLoop < xArray.length; xLoop++){
+      xBuffer += xArray[xLoop];
+    }
+
+    double xValue = xBuffer/xArray.length;
     
-    if (xEntry.getDouble(0.0) < middlePixel + threshold) {
-      chassis.arcadeDrive(1.0, -10);
-      //System.out.println("Turning Left " + xEntry.getDouble(middlePixel));
+    if (xValue < middlePixel + threshold) {
+      //leftChassis.set(0.5);
+      //rightChassis.set(0.4);
+      System.out.println("Turning Left " + xValue);
       // turn left
       
-    } else if (xEntry.getDouble(0.0) > middlePixel - threshold) {
-      chassis.arcadeDrive(1.0, 10);
-      //System.out.println("Turning Right " + xEntry.getDouble(middlePixel));
+    } else if (xValue > middlePixel - threshold) {
+      //leftChassis.set(0.4);
+      //rightChassis.set(0.5);
+      System.out.println("Turning Right " + xValue);
       // turn right      
     } 
     else {
-      chassis.arcadeDrive(1.0, 0);
-      //System.out.println("Driving Straight " + xEntry.getDouble(middlePixel));
+      //leftChassis.set(0.5);
+      //rightChassis.set(0.5);
+      System.out.println("Driving Straight " + xValue);
       // drive straight  
        
     }
-    if ((xEntry.getDouble(0.0) - oldX) < 0.01) {
+    return true;
+    /*
+    if ((xValue - oldX) < 0.01) {
       return false;        
     } else {
       oldX = xEntry.getDouble(0.0);
       return true;
-    }     
+    }*/     
     
     
 
@@ -1591,6 +1597,29 @@ Object[][] visionAutoTest = {
       }
     }
 
+  }
+
+  public boolean angleTurn(double turnAngle, double turnSpeed) {
+    if (setStartAngle) {
+      startAngle = getAngle();
+      setStartAngle = false;
+    }
+    if (getAngle() - startAngle < (turnAngle - 10)) {
+      leftBack.set(turnSpeed);
+      leftFront.set(turnSpeed);
+      rightBack.set(-turnSpeed);
+      rightFront.set(-turnSpeed);
+      return false;
+    } else if (getAngle() - startAngle > (turnAngle + 10)) {
+      leftBack.set(-turnSpeed);
+      leftFront.set(-turnSpeed);
+      rightBack.set(turnSpeed);
+      rightFront.set(turnSpeed);
+      return false;
+    } else { // Turn Complete
+      setStartAngle = true;
+      return true;
+    }
   }
 }
 
