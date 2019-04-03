@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.cscore.UsbCamera;
 
 import com.kauailabs.navx.frc.*;
 
@@ -77,7 +80,7 @@ public class Robot extends TimedRobot {
 
   // SpeedController Object creations - Define all names of motors here
   SpeedController leftFront, leftBack, rightFront, rightBack, intake, elevatorOne, elevatorTwo, lemmeDie;
-  Servo servoOne, servoTwo;
+  Servo servoOne, servoTwo, cameraX, cameraY;
   // Speed controller group used for new differential drive class
   SpeedControllerGroup leftChassis, rightChassis, elevator;
   // DifferentialDrive replaces the RobotDrive Class from previous years
@@ -132,6 +135,13 @@ public class Robot extends TimedRobot {
   // A specific entry for the table
   NetworkTableEntry xEntry;
   NetworkTableEntry yEntry;
+
+  // NewNetworkTable
+  boolean angleTurnBoolean;
+
+  NetworkTableEntry straightDistEntry, target_angleEntry, vert_distEntry, horiz_distEntry;
+
+  double kP = 0.03;
 
   enum AutoMovement {
     STRAIGHT, TURN, VISION, EJECT, ELEVATOR, MODE
@@ -724,6 +734,10 @@ Object[][] visionAutoTest = {
   boolean setStartAngle = true;
   double startAngle;
 
+  Double straightDist, target_angle, vert_dist, horiz_dist;
+
+  double angleTurnDelay;
+
 
 
   /**
@@ -732,6 +746,10 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void robotInit() {
+
+    UsbCamera cameraMyDude = CameraServer.getInstance().startAutomaticCapture();
+    //cameraMyDude.setResolution(640, 480);
+
     m_chooser.setDefaultOption("No Auto", driverControlled);
 
     m_chooser.addOption("Left Ship Short", leftShipShort);
@@ -770,8 +788,11 @@ Object[][] visionAutoTest = {
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
     lemmeDie = new Spark(7);
-    servoOne = new Servo(8);
-    servoTwo = new Servo(9);
+    //servoOne = new Servo(8);
+    //servoTwo = new Servo(9);
+
+    cameraX = new Servo(8);
+    cameraY = new Servo(9);
 
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
@@ -818,6 +839,12 @@ Object[][] visionAutoTest = {
     //xEntry = table.getEntry("xEntry");
     xEntry = gripTable.getEntry("myContoursReport/centerX");
     yEntry = table.getEntry("yEntry");
+
+    straightDistEntry = SmartDashboard.getEntry("straightDist");
+    target_angleEntry = SmartDashboard.getEntry("target_angle");
+    vert_distEntry = SmartDashboard.getEntry("vert_dist");
+    horiz_distEntry = SmartDashboard.getEntry("horiz_dist");
+
     // when enabled, the PCM will turn on the compressor when the pressure switch is
     // closed
     c.setClosedLoopControl(true);// or false
@@ -846,6 +873,15 @@ Object[][] visionAutoTest = {
    */
   @Override
   public void robotPeriodic() {
+    horiz_dist = horiz_distEntry.getDouble(0);
+    vert_dist = vert_distEntry.getDouble(0);
+    target_angle = target_angleEntry.getDouble(0);
+    straightDist = straightDistEntry.getDouble(0);
+    //System.out.println(straightDist);
+    //System.out.println(target_angle);
+    //System.out.println(vert_dist);
+    //System.out.println(horiz_dist);
+    
         //System.out.println(operator.getRawAxis(5));
     // Main Robot Movement
     chassis.arcadeDrive(-driver.getX(), (invertControls*driver.getY()));
@@ -868,6 +904,7 @@ Object[][] visionAutoTest = {
       autoStop = true;
     }
     if (lBumper){
+      driveStraight(gyro.getAngle() + target_angleEntry.getDouble(0), 0.4);
     } 
     if (rBumper) {
       invertControls = -1;
@@ -878,6 +915,23 @@ Object[][] visionAutoTest = {
     if (xButton) {
       cameraControl();
     }
+
+    if (yButton) {
+      angleTurnBoolean = true;
+    }
+/*
+    if (driver.getRawAxis(4) > 0.2 || driver.getRawAxis(4) < -0.2){
+      
+    }
+    if (driver.getRawAxis(5) > 0.2 || driver.getRawAxis(5) < -0.2){
+      
+    }*/
+    cameraX.setAngle(driver.getRawAxis(4)*90 + 90);
+    cameraY.setAngle(-driver.getRawAxis(5)*90 + 90);
+
+    System.out.println(cameraX.getAngle());
+    System.out.println(cameraY.getAngle());
+
     /*
     if (!climbFrontTimer.isActive) {
       if (aButton) {
@@ -1048,6 +1102,18 @@ Object[][] visionAutoTest = {
 
     if (getElevatorHeight() >= 65) {
       elevator.set(0);
+    }
+
+    if (angleTurnBoolean) {
+      if (angleTurn(target_angle, 0.5)){
+        //if (System.currentTimeMillis() - angleTurnDelay > 2000){
+          if (angleDrive(straightDist, 0.4)) {
+            angleTurnBoolean = false;
+          }
+        //}
+      }// else {
+        //angleTurnDelay = System.currentTimeMillis();
+      //}
     }
 
     //System.out.println(elevatorLimit.get());
@@ -1331,6 +1397,11 @@ Object[][] visionAutoTest = {
   public void testPeriodic() {
   }
 
+  @Override
+  public void disabledInit() {
+    angleTurnBoolean = false;
+  }
+
   // Converts encoder counts into inches
   public double getDistance() {
     return ((double) (leftEncoder.get() + rightEncoder.get()) / (ENCODER_COUNTS_PER_INCH * 2));
@@ -1352,7 +1423,7 @@ Object[][] visionAutoTest = {
   public boolean cameraControl() {
     // Sets the threshold for vision
     int threshold = 15;
-    double[] xDefault= {1,2};
+    double[] xDefault= {middlePixel, middlePixel};
 
     double[] xArray = xEntry.getDoubleArray(xDefault);
     double xBuffer = 0;
@@ -1360,18 +1431,19 @@ Object[][] visionAutoTest = {
     for (int xLoop = 0; xLoop < xArray.length; xLoop++){
       xBuffer += xArray[xLoop];
     }
-
-    double xValue = xBuffer/xArray.length;
     
+    //double xValue = xBuffer/xArray.length;
+    double xValue = target_angleEntry.getDouble(320);
+
     if (xValue < middlePixel + threshold) {
-      //leftChassis.set(0.5);
-      //rightChassis.set(0.4);
+      leftChassis.set(-0.2);
+      rightChassis.set(-0.4);
       System.out.println("Turning Left " + xValue);
       // turn left
       
     } else if (xValue > middlePixel - threshold) {
-      //leftChassis.set(0.4);
-      //rightChassis.set(0.5);
+      leftChassis.set(-0.4);
+      rightChassis.set(-0.2);
       System.out.println("Turning Right " + xValue);
       // turn right      
     } 
@@ -1443,8 +1515,8 @@ Object[][] visionAutoTest = {
     SmartDashboard.putNumber("Left Encoder Distance", leftEncoder.getDistance());
     SmartDashboard.putNumber("Right Encoder Distance", rightEncoder.getDistance());
     
-    SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
-    SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
+    //SmartDashboard.putNumber("ServoOne", servoOne.getAngle());
+    //SmartDashboard.putNumber("ServoTwo", servoTwo.getAngle());
 
     SmartDashboard.putNumber("Robot Speed", robotSpeed());
 
@@ -1600,27 +1672,75 @@ Object[][] visionAutoTest = {
   }
 
   public boolean angleTurn(double turnAngle, double turnSpeed) {
+    System.out.println("angleTurn()");
     if (setStartAngle) {
       startAngle = getAngle();
       setStartAngle = false;
     }
-    if (getAngle() - startAngle < (turnAngle - 10)) {
-      leftBack.set(turnSpeed);
-      leftFront.set(turnSpeed);
-      rightBack.set(-turnSpeed);
-      rightFront.set(-turnSpeed);
+    if (getAngle() - startAngle < (turnAngle - 3)) {
+      leftChassis.set(-turnSpeed);
+      rightChassis.set(turnSpeed);
       return false;
-    } else if (getAngle() - startAngle > (turnAngle + 10)) {
-      leftBack.set(-turnSpeed);
-      leftFront.set(-turnSpeed);
-      rightBack.set(turnSpeed);
-      rightFront.set(turnSpeed);
+    } else if (getAngle() - startAngle > (turnAngle + 3)) {
+      leftChassis.set(turnSpeed);
+      rightChassis.set(-turnSpeed);
       return false;
     } else { // Turn Complete
       setStartAngle = true;
       return true;
     }
   }
+
+  public boolean angleDrive(double distance, double speed) {
+    if (distance > 27) {
+      leftChassis.set(-speed);
+      rightChassis.set(-speed);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private void driveStraight(double heading, double speed) {
+		
+		// get the current heading and calculate a heading error
+		double currentAngle = gyro.getAngle()%360.0;
+		
+		double error = heading - currentAngle;
+
+		// calculate the speed for the motors
+		double leftSpeed = speed;
+		double rightSpeed = speed;
+
+		// adjust the motor speed based on the compass error
+		if (error < 0) {
+			// turn left
+			// slow down the left motors
+			leftSpeed += error * kP;
+		}
+		else {
+			// turn right
+			// Slow down right motors
+			rightSpeed -= error * kP;
+		}
+		
+		// set the motors based on the inputted speed
+    leftChassis.set(-leftSpeed);
+    rightChassis.set(-rightSpeed);
+	}
+  
+  /*
+  public void threadedStraight(){
+    Thread t = new Thread(() -> {
+      while (RobotState.isEnabled() && !Thread.interrupted()) {
+    // Not stuck anymore!
+        leftChassis.set(0.2);
+        rightChassis.set(0.2);
+      }
+    });
+    t.start();
+  }*/
+  
 }
 
 
