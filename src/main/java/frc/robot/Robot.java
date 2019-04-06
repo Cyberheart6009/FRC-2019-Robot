@@ -11,6 +11,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 //import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -103,7 +104,7 @@ public class Robot extends TimedRobot {
   // instantiating solenoid
   // params are the two port numbers for the forward channel and reverse channel
   // respectively
-  DoubleSolenoid ballSolenoid, hatchSolenoid;
+  DoubleSolenoid ballSolenoid, hatchSolenoid, hatchGrabSolenoid, intakeSolenoid;
   DoubleSolenoid frontClimb, backClimb;
   // Custom class to enable timed piston extrude and intrude
   boolean doFire;
@@ -120,10 +121,6 @@ public class Robot extends TimedRobot {
   // Creates the driver's joystick
   Joystick driver, operator;
   boolean operatorOverride;
-  ButtonTimers specialButtonOpTimer = new ButtonTimers(100); 
-  ButtonTimers buttonOpTimer = new ButtonTimers(100);
-  ButtonTimers climbFrontTimer = new ButtonTimers(100);
-  ButtonTimers climbBackTimer = new ButtonTimers(100);
 
   // Elevator Movement
   double startElevatorTime = 0;
@@ -154,6 +151,7 @@ public class Robot extends TimedRobot {
       { AutoMovement.TURN, 90, 0.5 } };
 
   DigitalInput elevatorLimit;
+  int dpad;
 
   // Possible Automodes
 
@@ -738,16 +736,22 @@ Object[][] visionAutoTest = {
 
   double angleTurnDelay;
 
+  boolean hatchReturn;
+  double hatchReturnTime;
 
 
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
    */
+  enum ClimbOrder { FRONT_LIFT, BACK_LIFT, FRONT_RETRACT, BACK_RETRACT }
+  ClimbOrder climbOrder;
+  
   @Override
   public void robotInit() {
+    climbOrder = climbOrder.FRONT_LIFT;
 
-    UsbCamera cameraMyDude = CameraServer.getInstance().startAutomaticCapture();
+    //UsbCamera cameraMyDude = CameraServer.getInstance().startAutomaticCapture();
     //cameraMyDude.setResolution(640, 480);
 
     m_chooser.setDefaultOption("No Auto", driverControlled);
@@ -781,23 +785,20 @@ Object[][] visionAutoTest = {
     // ultrasonic = new AnalogInput(0);
     // Defines all the ports of each of the motors
     leftFront = new Spark(0);
-    leftBack = new Spark(1);
+    cameraX = new Servo(1);
     rightFront = new Spark(2);
-    rightBack = new Spark(3);
+    cameraY = new Servo(3);
     intake = new Spark(4);
     elevatorOne = new Spark(5);
     elevatorTwo = new Spark(6);
     lemmeDie = new Spark(7);
-    //servoOne = new Servo(8);
-    //servoTwo = new Servo(9);
-
-    cameraX = new Servo(8);
-    cameraY = new Servo(9);
+    servoOne = new Servo(8);
+    servoTwo = new Servo(9);
 
     // Defines the left and right SpeedControllerGroups for our DifferentialDrive
     // class
-    leftChassis = new SpeedControllerGroup(leftFront, leftBack);
-    rightChassis = new SpeedControllerGroup(rightFront, rightBack);
+    leftChassis = new SpeedControllerGroup(leftFront);
+    rightChassis = new SpeedControllerGroup(rightFront);
     elevator = new SpeedControllerGroup(elevatorOne, elevatorTwo);
     // Inverts the right side of the drive train to account for the motors being
     // physically flipped
@@ -816,10 +817,12 @@ Object[][] visionAutoTest = {
     // Initializes compressor
     c = new Compressor(0);
     // Compressor solenoids
-    hatchSolenoid = new DoubleSolenoid(0, 1);
-    ballSolenoid = new DoubleSolenoid(2, 3);
-    frontClimb = new DoubleSolenoid(4, 5);
-    backClimb = new DoubleSolenoid(6, 7);
+    hatchSolenoid = new DoubleSolenoid(0, 2, 3);
+    ballSolenoid = new DoubleSolenoid(1, 0, 1);
+    frontClimb = new DoubleSolenoid(0, 4, 5);
+    backClimb = new DoubleSolenoid(0, 6, 7);
+    hatchGrabSolenoid = new DoubleSolenoid(0, 0, 1);
+    intakeSolenoid = new DoubleSolenoid(1, 2, 3);
 
     // Sets the joystick port
     driver = new Joystick(0);
@@ -854,6 +857,8 @@ Object[][] visionAutoTest = {
     hatchSolenoid.set(DoubleSolenoid.Value.kOff);
     frontClimb.set(DoubleSolenoid.Value.kOff);
     backClimb.set(DoubleSolenoid.Value.kOff);
+    hatchGrabSolenoid.set(DoubleSolenoid.Value.kOff);
+    intakeSolenoid.set(DoubleSolenoid.Value.kOff);
 
     // Maps a joystick to a variable
     driver = new Joystick(0);
@@ -892,7 +897,7 @@ Object[][] visionAutoTest = {
     //bButton = driver.getRawButton(2);
     bButtonPressed = driver.getRawButtonPressed(2);
     xButton = driver.getRawButton(3);
-    yButton = driver.getRawButton(4);
+    yButton = driver.getRawButtonPressed(4);
     lBumper = driver.getRawButton(5);
 		rBumper = driver.getRawButton(6);
 		select = driver.getRawButton(7);
@@ -904,7 +909,7 @@ Object[][] visionAutoTest = {
       autoStop = true;
     }
     if (lBumper){
-      driveStraight(gyro.getAngle() + target_angleEntry.getDouble(0), 0.4);
+      angleTurnBoolean = !angleTurnBoolean;
     } 
     if (rBumper) {
       invertControls = -1;
@@ -913,11 +918,30 @@ Object[][] visionAutoTest = {
     }
 
     if (xButton) {
-      cameraControl();
+      switch (climbOrder){
+        case FRONT_LIFT:
+          frontClimb.set(DoubleSolenoid.Value.kForward);
+          climbOrder = ClimbOrder.BACK_LIFT;
+          break;
+        case BACK_LIFT:
+          backClimb.set(DoubleSolenoid.Value.kForward);
+          climbOrder = ClimbOrder.FRONT_RETRACT;
+          break;
+        case FRONT_RETRACT:
+          frontClimb.set(DoubleSolenoid.Value.kReverse);
+          climbOrder = ClimbOrder.BACK_RETRACT;
+          break;
+        case BACK_RETRACT:
+          backClimb.set(DoubleSolenoid.Value.kReverse);
+          climbOrder = ClimbOrder.FRONT_LIFT;
+          break;
+      }
     }
 
     if (yButton) {
-      angleTurnBoolean = true;
+      backClimb.set(DoubleSolenoid.Value.kReverse);
+      frontClimb.set(DoubleSolenoid.Value.kReverse);
+      climbOrder = ClimbOrder.FRONT_LIFT;
     }
 /*
     if (driver.getRawAxis(4) > 0.2 || driver.getRawAxis(4) < -0.2){
@@ -929,8 +953,8 @@ Object[][] visionAutoTest = {
     cameraX.setAngle(driver.getRawAxis(4)*90 + 90);
     cameraY.setAngle(-driver.getRawAxis(5)*90 + 90);
 
-    System.out.println(cameraX.getAngle());
-    System.out.println(cameraY.getAngle());
+    //System.out.println(cameraX.getAngle());
+    //System.out.println(cameraY.getAngle());
 
     /*
     if (!climbFrontTimer.isActive) {
@@ -972,32 +996,52 @@ Object[][] visionAutoTest = {
     }
 
     // OPERATOR CONTROLS BEGINS
-    aButtonOp = operator.getRawButton(1);
-    bButtonOp = operator.getRawButton(2);
-    xButtonOp = operator.getRawButton(3);
-    yButtonOp = operator.getRawButton(4);
-    lBumperOp = operator.getRawButton(5);
-    //rBumperOp = operator.getRawButton(6);
+    aButtonOp = operator.getRawButtonPressed(1);
+    bButtonOp = operator.getRawButtonPressed(2);
+    xButtonOp = operator.getRawButtonPressed(3);
+    yButtonOp = operator.getRawButtonPressed(4);
+    lBumperOp = operator.getRawButtonPressed(5);
     rBumperOpPressed = operator.getRawButtonPressed(6);
-		selectOp = operator.getRawButton(7);
-		startOp = operator.getRawButton(8);
+		selectOp = operator.getRawButtonPressed(7);
+		startOp = operator.getRawButtonPressed(8);
 		leftThumbPushOp = operator.getRawButton(9);
     rightThumbPushOp = operator.getRawButton(10);
+    dpad = operator.getPOV();
 
-    if (selectOp) {
-      if (!specialButtonOpTimer.isActive) {
-        operatorOverride = !operatorOverride;
-        destinationHeight = ElevatorHeight.NONE;
-        startElevatorTime = 0;
-        specialButtonOpTimer.activate();
+    if (10 < dpad && dpad < 180) {
+      hatchReturn = true;
+      hatchReturnTime = System.currentTimeMillis();
+    } else if (dpad >= 180) {
+      if (hatchSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
       }
     }
 
-    //if (operatorOverride) {
-      elevator.set(operator.getRawAxis(5));
-    //}
+    if (startOp) {
+      if (hatchGrabSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        hatchGrabSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        hatchGrabSolenoid.set(DoubleSolenoid.Value.kReverse);
+      }
+    }
 
-    lemmeDie.set(-operator.getY());
+    if (selectOp) {
+      operatorOverride = !operatorOverride;
+      destinationHeight = ElevatorHeight.NONE;
+      startElevatorTime = 0;
+    }
+
+    elevator.set(operator.getRawAxis(5));
+
+    //lemmeDie.set(-operator.getY());
+    if (operator.getY() > 0.2){
+      intakeSolenoid.set(DoubleSolenoid.Value.kForward);
+    }
+    if (operator.getY() < -0.2) {
+      intakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+    } 
 
     if (operator.getRawAxis(3) > 0.1) {
       intake.set(operator.getRawAxis(3));
@@ -1007,14 +1051,6 @@ Object[][] visionAutoTest = {
       intake.set(0);
     }
 
-    /*
-    if (rBumperOp) {
-      if (!specialButtonOpTimer.isActive) {
-        switchMode();
-        specialButtonOpTimer.activate();
-      }
-    } */
-
     if (rBumperOpPressed) {
       switchMode();
     }
@@ -1023,6 +1059,35 @@ Object[][] visionAutoTest = {
       doFire = true;
     }
 
+    /*
+    if (aButtonOp) {
+      if (hatchSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+      }
+    }
+    if (bButtonOp) {
+      if (ballSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        ballSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        ballSolenoid.set(DoubleSolenoid.Value.kReverse);
+      }
+    }
+    if (xButtonOp) {
+      if (intakeSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        intakeSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        intakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+      }
+    }
+    if (yButtonOp) {
+      if (hatchGrabSolenoid.get() == DoubleSolenoid.Value.kReverse){
+        hatchGrabSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        hatchGrabSolenoid.set(DoubleSolenoid.Value.kReverse);
+      }
+    }*/
 
     if (currentRobotMode == RobotMode.CARGO) {
       if (aButtonOp) {
@@ -1058,11 +1123,6 @@ Object[][] visionAutoTest = {
 
     // //System.out.println("Im In");
     updateSmartDashboard();
-
-    buttonOpTimer.update();
-    specialButtonOpTimer.update();
-    climbFrontTimer.update();
-    climbBackTimer.update();
 
     if (doFire) {
       fire();
@@ -1117,6 +1177,14 @@ Object[][] visionAutoTest = {
     }
 
     //System.out.println(elevatorLimit.get());
+    if (hatchReturn) {
+      hatchGrabSolenoid.set(DoubleSolenoid.Value.kReverse);
+      if (hatchReturnTime + 200 < System.currentTimeMillis()) {
+        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
+        hatchReturn = false;
+      }
+
+    }
   }
 
   /**
@@ -1527,6 +1595,7 @@ Object[][] visionAutoTest = {
     SmartDashboard.putNumber("Elevator Height", getElevatorHeight());
 
     SmartDashboard.putString("Current Robot mode", currentRobotMode.name());
+    SmartDashboard.putBoolean("elevatorLimit", elevatorLimit.get());
 
     //SmartDashboard.putNumber("Ultrasonic Distance", getUltrasonicDistance());
   }
@@ -1641,13 +1710,13 @@ Object[][] visionAutoTest = {
         startStartPistonTime = false;
     }
     if (currentRobotMode == RobotMode.HATCH) {
-      if (System.currentTimeMillis() < this.startPistonTime + 100) {
-        servoClose();
-      } else if (System.currentTimeMillis() < this.startPistonTime + 400) {
+      if (System.currentTimeMillis() < this.startPistonTime + 200) {
         c.setClosedLoopControl(false);
-        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
-      } else {
         hatchSolenoid.set(DoubleSolenoid.Value.kReverse);
+      } else if (System.currentTimeMillis() < this.startPistonTime + 900) {
+        hatchGrabSolenoid.set(DoubleSolenoid.Value.kForward);
+      } else {
+        hatchSolenoid.set(DoubleSolenoid.Value.kForward);
         c.setClosedLoopControl(true);
         startStartPistonTime = true;
         doFire = false;
@@ -1741,34 +1810,4 @@ Object[][] visionAutoTest = {
     t.start();
   }*/
   
-}
-
-
-class ButtonTimers {
-
-  public Boolean isActive = false;
-  double activated;
-  double delay;
-
-  public ButtonTimers() {
-    this.delay = 200;
-  }
-
-  public ButtonTimers(double delay) {
-    this.delay = delay;
-  }
-
-  public void activate() {
-    activated = System.currentTimeMillis();
-    isActive = true;
-  }
-
-  public void update() {
-    if (isActive) {
-      if (activated + delay < System.currentTimeMillis()) {
-        isActive = false;
-      }
-    }
-  }
-
 }
